@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>https://rh-open.github.io/openshift-ops-handson/template-tutorial/01-setup.html</loc>
-<lastmod>2023-02-24T01:02:09.166Z</lastmod>
+<loc>https://rh-open.github.io/openshift-ops-handson/tutorial/01-setup.html</loc>
+<lastmod>2023-02-24T01:04:59.262Z</lastmod>
 </url>
 <url>
-<loc>https://rh-open.github.io/openshift-ops-handson/template-tutorial/02-deploy.html</loc>
-<lastmod>2023-02-24T01:02:09.166Z</lastmod>
+<loc>https://rh-open.github.io/openshift-ops-handson/tutorial/02-deploy.html</loc>
+<lastmod>2023-02-24T01:04:59.262Z</lastmod>
 </url>
 <url>
-<loc>https://rh-open.github.io/openshift-ops-handson/template-tutorial/index.html</loc>
-<lastmod>2023-02-24T01:02:09.166Z</lastmod>
+<loc>https://rh-open.github.io/openshift-ops-handson/tutorial/index.html</loc>
+<lastmod>2023-02-24T01:04:59.262Z</lastmod>
 </url>
 </urlset>
