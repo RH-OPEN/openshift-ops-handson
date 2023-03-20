@@ -156,31 +156,31 @@
 </ul>
 </div>
 <div class="paragraph">
-<p>Any node running a container/pod/component not described above is considered a worker and must be covered by a subscription.</p>
+<p>上記以外のコンテナー/ポッド/コンポーネントを実行しているノードはワーカーと見なされ、サブスクリプションでカバーする必要があります。</p>
 </div>
 <div class="sect2">
 <h3 id="_more_machineset_details"><a class="anchor" href="#_more_machineset_details"></a>More MachineSet Details</h3>
 <div class="paragraph">
-<p>In the <code>MachineSets</code> exercises you explored using <code>MachineSets</code> and scaling the cluster by changing their replica count. In the case of an infrastructure node, we want to create additional <code>Machines</code> that have specific Kubernetes labels. Then, we can configure the various infrastructure components to run specifically on nodes with those labels.</p>
+<p><code>MachineSets</code> の演習では、 <code>MachineSets</code> を使用し、レプリカの数を変更してクラスターをスケーリングする方法について説明しました。 インフラストラクチャ ノードの場合、特定の Kubernetes ラベルを持つ追加の <code>Machines</code> を作成します。 次に、さまざまなインフラストラクチャ コンポーネントを構成して、これらのラベルを持つノードで具体的に実行できます。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>Currently the operators that are used to control infrastructure components do not all support the use of taints and tolerations. This means that infrastructure workload will go onto the infrastructure nodes, but other workload is not specifically prevented from running on the infrastructure nodes. In other words, user workload may commingle with infrastructure workload until full taint/toleration support is implemented in all operators.</p>
+<p>現在、インフラストラクチャ コンポーネントを制御するために使用されるオペレーターは、テイントと容認の使用をすべてサポートしているわけではありません。 これは、インフラストラクチャ ワークロードがインフラストラクチャ ノードに移動することを意味しますが、他のワークロードがインフラストラクチャ ノードでの実行を明確に妨げられるわけではありません。 言い換えれば、すべてのオペレーターに完全な汚染/耐性サポートが実装されるまで、ユーザーのワークロードはインフラストラクチャのワークロードと混ざり合う可能性があります。</p>
 </div>
 <div class="paragraph">
-<p>Taints and tolerations work in tandem to ensure that workloads are not scheduled  onto certian nodes. They’ll be explored later on.</p>
+<p>テイントと容認は連携して機能し、ワークロードが特定のノードにスケジュールされないようにします。 それらは後で調査されます。</p>
 </div>
 </div>
 </div>
 <div class="paragraph">
-<p>To accomplish this, you will create additional <code>MachineSets</code>.</p>
+<p>これを実現するには、追加の <code>MachineSets</code> を作成します。</p>
 </div>
 <div class="paragraph">
-<p>In order to understand how <code>MachineSets</code> work, run the following.</p>
+<p><code>MachineSets</code> がどのように機能するかを理解するには、次を実行します。</p>
 </div>
 <div class="paragraph">
-<p>This will allow you to follow along with some of the following discussion.</p>
+<p>これにより、以下の説明のいくつかに沿って進めることができます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -192,7 +192,7 @@ oc get machineset -n openshift-machine-api -o yaml ${CLUSTERNAME}-worker-${ZONEN
 <div class="sect3">
 <h4 id="_metadata"><a class="anchor" href="#_metadata"></a>Metadata</h4>
 <div class="paragraph">
-<p>The <code>metadata</code> on the <code>MachineSet</code> itself includes information like the name of the <code>MachineSet</code> and various labels.</p>
+<p><code>MachineSet</code> 自体の <code>metadata</code> には、 <code>MachineSet</code> の名前やさまざまなラベルなどの情報が含まれています。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -212,8 +212,10 @@ oc get machineset -n openshift-machine-api -o yaml ${CLUSTERNAME}-worker-${ZONEN
 </div>
 <div class="exampleblock">
 <div class="content">
-<div class="paragraph">
-<p>You might see some <code>annotations</code> on your <code>MachineSet</code> if you dumped one that had a <code>MachineAutoScaler</code> defined.</p>
+<div class="literalblock">
+<div class="content">
+<pre>`MachineAutoScaler` が定義されているものをダンプした場合、 `MachineSet` に `annotations` が表示される場合があります。</pre>
+</div>
 </div>
 </div>
 </div>
@@ -221,7 +223,7 @@ oc get machineset -n openshift-machine-api -o yaml ${CLUSTERNAME}-worker-${ZONEN
 <div class="sect3">
 <h4 id="_selector"><a class="anchor" href="#_selector"></a>Selector</h4>
 <div class="paragraph">
-<p>The <code>MachineSet</code> defines how to create <code>Machines</code>, and the <code>Selector</code> tells the operator which machines are associated with the set:</p>
+<p><code>MachineSet</code> は <code>Machines</code> の作成方法を定義し、<code>Selector</code> はどのマシンがセットに関連付けられているかをオペレーターに伝えます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -234,14 +236,14 @@ oc get machineset -n openshift-machine-api -o yaml ${CLUSTERNAME}-worker-${ZONEN
 </div>
 </div>
 <div class="paragraph">
-<p>In this case, the cluster name is <code>190125-3</code> and there is an additional label for the whole set.</p>
+<p>この場合、クラスタ名は「190125-3」で、セット全体に追加のラベルがあります。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_template_metadata"><a class="anchor" href="#_template_metadata"></a>Template Metadata</h3>
 <div class="paragraph">
-<p>The <code>template</code> is the part of the <code>MachineSet</code> that templates out the <code>Machine</code>. The <code>template</code> itself can have metadata associated, and we need to make sure that things match here when we make changes:</p>
+<p><code>template</code> は <code>Machine</code> をテンプレート化する <code>MachineSet</code> の一部です。 <code>template</code> 自体にメタデータを関連付けることができます。変更を加えるときは、ここで内容が一致していることを確認する必要があります。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -257,10 +259,10 @@ oc get machineset -n openshift-machine-api -o yaml ${CLUSTERNAME}-worker-${ZONEN
 <div class="sect3">
 <h4 id="_template_spec"><a class="anchor" href="#_template_spec"></a>Template Spec</h4>
 <div class="paragraph">
-<p>The <code>template</code> needs to specify how the <code>Machine</code>/<code>Node</code> should be created. You will notice that the <code>spec</code> and, more specifically, the <code>providerSpec</code> contains all of the important AWS data to help get the <code>Machine</code> created correctly and bootstrapped.</p>
+<p><code>template</code> は <code>Machine</code>/<code>Node</code> の作成方法を指定する必要があります。 <code>spec</code>、より具体的には <code>providerSpec</code> には、<code>Machine</code> を正しく作成してブートストラップするのに役立つすべての重要な AWS データが含まれていることに気付くでしょう。</p>
 </div>
 <div class="paragraph">
-<p>In our case, we want to ensure that the resulting node inherits one or more specific labels. As you&#8217;ve seen in the examples above, labels go in <code>metadata</code> sections:</p>
+<p>この場合、結果のノードが 1 つ以上の特定のラベルを継承するようにします。 上記の例で見たように、ラベルは <code>metadata</code> セクションに入ります:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -275,39 +277,39 @@ oc get machineset -n openshift-machine-api -o yaml ${CLUSTERNAME}-worker-${ZONEN
 </div>
 </div>
 <div class="paragraph">
-<p>By default the <code>MachineSets</code> that the installer creates do not apply any additional labels to the node.</p>
+<p>デフォルトでは、インストーラーが作成する <code>MachineSets</code> はノードに追加のラベルを適用しません。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_defining_a_custom_machineset"><a class="anchor" href="#_defining_a_custom_machineset"></a>Defining a Custom MachineSet</h3>
 <div class="paragraph">
-<p>Now that you&#8217;ve analyzed an existing <code>MachineSet</code> it&#8217;s time to go over the rules for creating one, at least for a simple change like we&#8217;re making:</p>
+<p>既存の <code>MachineSet</code> を分析したので、それを作成するためのルールを確認する時が来ました。少なくとも、私たちが行っているような単純な変更については:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Don&#8217;t change anything in the <code>providerSpec</code></p>
+<p><code>providerSpec</code> は何も変更しないでください</p>
 </li>
 <li>
-<p>Don&#8217;t change any instances of <code>machine.openshift.io/cluster-api-cluster: &lt;clusterid&gt;</code></p>
+<p><code>machine.openshift.io/cluster-api-cluster: &lt;clusterid&gt;</code> のインスタンスを変更しないでください</p>
 </li>
 <li>
-<p>Give your <code>MachineSet</code> a unique <code>name</code></p>
+<p><code>MachineSet</code> に一意の <code>name</code> を付けます</p>
 </li>
 <li>
-<p>Make sure any instances of <code>machine.openshift.io/cluster-api-machineset</code> match the <code>name</code></p>
+<p><code>machine.openshift.io/cluster-api-machineset</code> のすべてのインスタンスが <code>name</code> と一致することを確認します</p>
 </li>
 <li>
-<p>Add labels you want on the nodes to <code>.spec.template.spec.metadata.labels</code></p>
+<p>ノードに必要なラベルを <code>.spec.template.spec.metadata.labels</code> に追加します</p>
 </li>
 <li>
-<p>Even though you&#8217;re changing <code>MachineSet</code> <code>name</code> references, be sure not to change the <code>subnet</code>.</p>
+<p><code>MachineSet</code> の <code>name</code> 参照を変更していても、<code>subnet</code> は変更しないでください。</p>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p>This sounds complicated, but we have a little script and some steps that will do the hard work for you:</p>
+<p>これは複雑に聞こえますが、簡単なスクリプトといくつかの手順を用意して、面倒な作業を自動的に行います。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -318,7 +320,7 @@ oc scale machineset $MACHINESET -n openshift-machine-api --replicas=3</code></pr
 </div>
 </div>
 <div class="paragraph">
-<p>Then go ahead and run:</p>
+<p>次に、実行してください：</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -326,7 +328,7 @@ oc scale machineset $MACHINESET -n openshift-machine-api --replicas=3</code></pr
 </div>
 </div>
 <div class="paragraph">
-<p>You should see the new infra set listed with a name similar to the following:</p>
+<p>次のような名前の新しいインフラ セットが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -336,12 +338,12 @@ cluster-city-56f8-mc4pf-infra-us-east-2a    1         1                         
 </div>
 </div>
 <div class="paragraph">
-<p>We don&#8217;t yet have any ready or available machines in the set because the instances are still coming up and bootstrapping. You can check <code>oc get machine -n openshift-machine-api</code> to see when the instance finally starts running. Then, you can use <code>oc get node</code> to see when the actual node is joined and ready.</p>
+<p>インスタンスがまだ起動してブートストラップ中であるため、セット内に準備が整った、または使用可能なマシンはまだありません。 <code>oc get machine -n openshift-machine-api</code> をチェックして、インスタンスが最終的にいつ実行を開始するかを確認できます。 次に、 <code>oc get node</code> を使用して、実際のノードがいつ結合され、準備ができているかを確認できます。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>It can take several minutes for a <code>Machine</code> to be prepared and added as a <code>Node</code>.</p>
+<p><code>Machine</code> が準備され、 <code>Node</code> として追加されるまでに数分かかる場合があります。</p>
 </div>
 </div>
 </div>
@@ -365,10 +367,10 @@ ip-10-0-169-121.us-east-2.compute.internal   Ready    master         67m    v1.1
 </div>
 </div>
 <div class="paragraph">
-<p>If you&#8217;re having trouble figuring out which node is the new one, take a look at the <code>AGE</code> column. It will be the youngest! Also, in the <code>ROLES</code> column you will notice that the new node has both a <code>worker</code> and an <code>infra</code> role.</p>
+<p>どのノードが新しいノードか分からない場合は、 <code>AGE</code> 列を見てください。 最年少になります！ また、<code>ROLES</code> 列では、新しいノードに <code>worker</code> と <code>infra</code> の両方の役割があることがわかります。</p>
 </div>
 <div class="paragraph">
-<p>Alternatively you can list the node by role.</p>
+<p>または、役割ごとにノードをリストすることもできます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -379,7 +381,7 @@ ip-10-0-169-121.us-east-2.compute.internal   Ready    master         67m    v1.1
 <div class="sect2">
 <h3 id="_check_the_labels"><a class="anchor" href="#_check_the_labels"></a>Check the Labels</h3>
 <div class="paragraph">
-<p>In our case, the youngest node was named <code>ip-10-0-128-138.us-east-1.compute.internal</code>, so we can ask what its labels are:</p>
+<p>私たちの場合、最も若いノードは <code>ip-10-0-128-138.us-east-1.compute.internal</code> という名前だったので、そのラベルが何であるかを尋ねることができます:</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -388,7 +390,7 @@ oc get nodes ${YOUNG_INFRA_NODE} --show-labels | grep --color node-role</code></
 </div>
 </div>
 <div class="paragraph">
-<p>And, in the <code>LABELS</code> column we see:</p>
+<p>そして、<code>LABELS</code> 列には次のように表示されます。</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -396,22 +398,22 @@ oc get nodes ${YOUNG_INFRA_NODE} --show-labels | grep --color node-role</code></
 </div>
 </div>
 <div class="paragraph">
-<p>It&#8217;s hard to see, but our <code>node-role.kubernetes.io/infra</code> label is there.</p>
+<p>わかりにくいですが、 <code>node-role.kubernetes.io/infra</code> というラベルがあります。</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_add_more_machinesets_or_scale_or_both"><a class="anchor" href="#_add_more_machinesets_or_scale_or_both"></a>Add More Machinesets (or scale, or both)</h3>
 <div class="paragraph">
-<p>In a realistic production deployment, you would want at least 3 <code>MachineSets</code> to hold infrastructure components. Both the logging aggregation solution and the service mesh will deploy ElasticSearch, and ElasticSearch really needs 3 instances spread across 3 discrete nodes. Why 3 <code>MachineSets</code>? Well, in theory, having multiple <code>MachineSets</code> in different AZs ensures that you don&#8217;t go completely dark if AWS loses an AZ.</p>
+<p>現実的な運用展開では、インフラストラクチャ コンポーネントを保持するために少なくとも 3 つの <code>MachineSets</code> が必要です。 ロギング集約ソリューションとサービス メッシュの両方が ElasticSearch をデプロイします。ElasticSearch には、3 つの個別のノードにまたがる 3 つのインスタンスが実際に必要です。 なぜ 3 つの <code>MachineSets</code> なのか? 理論的には、異なる AZ に複数の <code>MachineSets</code> を配置することで、AWS が AZ を失った場合でも完全に暗くなることはありません。</p>
 </div>
 <div class="paragraph">
-<p>The <code>MachineSet</code> you created with the scriptlet already created 3 replicas for you, so you don&#8217;t have to do anything for now. Don&#8217;t create any additional ones yourself, either&#8201;&#8212;&#8201;the AWS limits on the account you are using are purposefully small.</p>
+<p>スクリプトレットで作成した <code>MachineSet</code> によって、すでに 3 つのレプリカが作成されているので、今のところ何もする必要はありません。 自分で追加のものを作成しないでください。使用しているアカウントの AWS 制限は意図的に小さくなっています。</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_extra_credit"><a class="anchor" href="#_extra_credit"></a>Extra Credit</h3>
 <div class="paragraph">
-<p>In the <code>openshift-machine-api</code> project are several <code>Pods</code>. One of them has a name like <code>machine-api-controllers-56bdc6874f-86jnb</code>. If you use <code>oc logs</code> on the various containers in that <code>Pod</code>, you will see the various operator bits that actually make the nodes come into existence.</p>
+<p><code>openshift-machine-api</code> プロジェクトには、いくつかの <code>Pod</code> があります。 それらの 1 つは、<code>machine-api-controllers-56bdc6874f-86jnb</code> のような名前を持っています。 その Pod 内のさまざまなコンテナーで oc logs を使用すると、実際にノードを作成するさまざまなオペレーター ビットが表示されます。</p>
 </div>
 </div>
 </div>
@@ -420,13 +422,13 @@ oc get nodes ${YOUNG_INFRA_NODE} --show-labels | grep --color node-role</code></
 <h2 id="_quick_operator_background"><a class="anchor" href="#_quick_operator_background"></a>Quick Operator Background</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Operators are just <code>Pods</code>. But they are special <code>Pods</code>. They are software that understands how to deploy and manage applications in a Kubernetes environment. The power of Operators relies on a  Kubernetes feature called <code>CustomResourceDefinitions</code> (<code>CRD</code>). A <code>CRD</code> is exactly what it sounds like. They are a way to define a custom resource which is essentially extending the Kubernetes API with new objects.</p>
+<p>オペレーターは単なる <code>Pods</code> です。 しかし、それらは特別な <code>Pods</code> です。 これらは、Kubernetes 環境でアプリケーションをデプロイおよび管理する方法を理解するソフトウェアです。 Operator の機能は、<code>CustomResourceDefinitions</code> (<code>CRD</code>) と呼ばれる Kubernetes 機能に依存しています。  <code>CRD</code> はまさにその名のとおりです。 これらは、基本的に新しいオブジェクトで Kubernetes API を拡張するカスタム リソースを定義する方法です。</p>
 </div>
 <div class="paragraph">
-<p>If you wanted to be able to create/read/update/delete <code>Foo</code> objects in Kubernetes, you would create a <code>CRD</code> that defines what a <code>Foo</code> resource is and how it works. You can then create <code>CustomResources</code> (<code>CRs</code>)&#8201;&#8212;&#8201;instances of your <code>CRD</code>.</p>
+<p>Kubernetes で <code>Foo</code> オブジェクトを作成/読み取り/更新/削除できるようにしたい場合は、 <code>Foo</code> リソースとは何か、およびそれがどのように機能するかを定義する <code>CRD</code> を作成します。 その後、<code>CustomResources</code> (<code>CRs</code>)&#8201;&#8212;&#8201;<code>CRD</code> のインスタンスを作成できます。</p>
 </div>
 <div class="paragraph">
-<p>With Operators, the general pattern is that an Operator looks at <code>CRs</code> for its configuration, and then it <em>operates</em> on the Kubernetes environment to do whatever the configuration specifies. Now you will take a look at how some of the infrastructure operators in OpenShift do their thing.</p>
+<p>Operator の場合、一般的なパターンは、Operator がその構成について <code>CRs</code> を参照し、次に Kubernetes 環境で_操作_して、構成で指定されていることを実行するというものです。 ここで、OpenShift の一部のインフラストラクチャ オペレーターがどのように業務を行っているかを見ていきます。</p>
 </div>
 </div>
 </div>
@@ -434,12 +436,12 @@ oc get nodes ${YOUNG_INFRA_NODE} --show-labels | grep --color node-role</code></
 <h2 id="_moving_infrastructure_components"><a class="anchor" href="#_moving_infrastructure_components"></a>Moving Infrastructure Components</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now that you have some special nodes, it&#8217;s time to move various infrastructure components onto them.</p>
+<p>いくつかの特別なノードができたので、さまざまなインフラストラクチャ コンポーネントをそれらに移動します。</p>
 </div>
 <div class="sect2">
 <h3 id="_router"><a class="anchor" href="#_router"></a>Router</h3>
 <div class="paragraph">
-<p>The OpenShift router is managed by an <code>Operator</code> called <code>openshift-ingress-operator</code>. Its <code>Pod</code> lives in the <code>openshift-ingress-operator</code> project:</p>
+<p>OpenShift ルーターは、 <code>openshift-ingress-operator</code> と呼ばれる <code>Operator</code> によって管理されます。 その <code>Pod</code> は <code>openshift-ingress-operator</code> プロジェクトに存在します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -447,7 +449,7 @@ oc get nodes ${YOUNG_INFRA_NODE} --show-labels | grep --color node-role</code></
 </div>
 </div>
 <div class="paragraph">
-<p>The actual default router instance lives in the <code>openshift-ingress</code> project.  Take a look at the <code>Pods</code>.</p>
+<p>実際のデフォルト ルーター インスタンスは <code>openshift-ingress</code> プロジェクトにあります。  <code>Pods</code> を見てください。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -455,7 +457,7 @@ oc get nodes ${YOUNG_INFRA_NODE} --show-labels | grep --color node-role</code></
 </div>
 </div>
 <div class="paragraph">
-<p>And you will see something like:</p>
+<p>そして、次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -465,7 +467,7 @@ router-default-7bc4c9c5cd-fq7m2   1/1     Running   0          9h    10.131.0.7 
 </div>
 </div>
 <div class="paragraph">
-<p>Review a <code>Node</code> on which a router is running:</p>
+<p>ルーターが実行されている <code>Node</code> を確認します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -473,8 +475,10 @@ router-default-7bc4c9c5cd-fq7m2   1/1     Running   0          9h    10.131.0.7 
 oc get node ${ROUTER_POD_NODE}</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>You will see that it has the role of <code>worker</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>`worker` の役割を持っていることがわかります。</pre>
+</div>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -483,10 +487,10 @@ ip-10-0-144-70.us-east-2.compute.internal   Ready    worker   9h    v1.12.4+5099
 </div>
 </div>
 <div class="paragraph">
-<p>The default configuration of the router operator is to pick nodes with the role of <code>worker</code>. But, now that we have created dedicated infrastructure nodes, we want to tell the operator to put the router instances on nodes with the role of <code>infra</code>.</p>
+<p>ルーター オペレーターのデフォルト設定では、 <code>worker</code> の役割を持つノードを選択します。 しかし、専用のインフラストラクチャ ノードを作成したので、 <code>infra</code> の役割を持つノードにルーター インスタンスを配置するようにオペレーターに伝えたいと考えています。</p>
 </div>
 <div class="paragraph">
-<p>The OpenShift router operator uses a custom resource definition (<code>CRD</code>) called <code>ingresses.config.openshift.io</code> to define the default routing subdomain for the cluster:</p>
+<p>OpenShift ルーター オペレーターは、 <code>ingresses.config.openshift.io</code> と呼ばれるカスタム リソース定義 ( <code>CRD</code> ) を使用して、クラスターのデフォルトのルーティング サブドメインを定義します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -494,7 +498,7 @@ ip-10-0-144-70.us-east-2.compute.internal   Ready    worker   9h    v1.12.4+5099
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>cluster</code> object is observed by the router operator as well as the master. Yours likely looks something like:</p>
+<p><code>cluster</code> オブジェクトは、ルーター オペレーターとマスターによって監視されます。 あなたのものはおそらく次のようになります：</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -513,7 +517,7 @@ status: {}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Individual router deployments are managed via the <code>ingresscontrollers.operator.openshift.io</code> CRD. There is a default one created in the <code>openshift-ingress-operator</code> namespace:</p>
+<p>個々のルーターのデプロイメントは、 <code>ingresscontrollers.operator.openshift.io</code> CRD を介して管理されます。 <code>openshift-ingress-operator</code> 名前空間に作成されたデフォルトのものがあります。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -521,7 +525,7 @@ status: {}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Yours looks something like:</p>
+<p>あなたのものは次のようになります：</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -551,7 +555,7 @@ status:
 </div>
 </div>
 <div class="paragraph">
-<p>To specify a <code>nodeSelector</code> that tells the router pods to hit the infrastructure nodes, we can apply the following configuration:</p>
+<p>ルーター Pod にインフラストラクチャ ノードをヒットするように指示する <code>nodeSelector</code> を指定するには、次の構成を適用できます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -561,12 +565,12 @@ status:
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>You may see an error that says <code>Warning: resource is missing the kubectl.kubernetes.io/last-applied-config</code>. This is normal, an <code>apply</code> envokes a <a href="https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#kubectl-apply">"3 way diff merge"</a> on the resource. Since the ingress controller was only just created on install, there was no "last applied" configuration for it. If you run that command again, you shouldn&#8217;t see that warning.</p>
+<p><code>Warning: resource is missing the kubectl.kubernetes.io/last-applied-config</code> というエラーが表示される場合があります。 これは正常です。<code>apply</code> は <a href="https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#kubectl-apply">"3 way diff merge"</a> を呼び出します。 イングレス コントローラーはインストール時に作成されたばかりなので、「最後に適用された」構成はありません。 そのコマンドを再度実行すると、その警告は表示されません。</p>
 </div>
 </div>
 </div>
 <div class="paragraph">
-<p>Run:</p>
+<p>以下のコマンドを実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -576,12 +580,12 @@ status:
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>Your session may timeout during the router move. Please refresh the page to get your session back. You will not lose your terminal session but may have to navigate back to this page manually.</p>
+<p>ルーターの移動中にセッションがタイムアウトする場合があります。 セッションを元に戻すには、ページを更新してください。 端末セッションが失われることはありませんが、手動でこのページに戻る必要がある場合があります。</p>
 </div>
 </div>
 </div>
 <div class="paragraph">
-<p>If you&#8217;re quick enough, you might catch either <code>Terminating</code> or <code>ContainerCreating</code> pods. The <code>Terminating</code> pod was running on one of the worker nodes. The <code>Running</code> pods eventually are on one of our nodes with the <code>infra</code> role.</p>
+<p>速ければ、 <code>Terminating</code> または <code>ContainerCreating</code> ポッドのいずれかをキャッチできます。 「終了」ポッドは、ワーカー ノードの 1 つで実行されていました。  <code>Running</code> のポッドは、最終的に <code>infra</code> ロールを持つノードの 1 つになります。</p>
 </div>
 </div>
 </div>
@@ -590,7 +594,7 @@ status:
 <h2 id="_registry"><a class="anchor" href="#_registry"></a>Registry</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The registry uses a similar <code>CRD</code> mechanism to configure how the operator deploys the actual registry pods. That CRD is <code>configs.imageregistry.operator.openshift.io</code>. You will edit the <code>cluster</code> CR object in order to add the <code>nodeSelector</code>. First, take a look at it:</p>
+<p>レジストリは、同様の <code>CRD</code> メカニズムを使用して、オペレーターが実際のレジストリ ポッドをデプロイする方法を構成します。 その CRD は <code>configs.imageregistry.operator.openshift.io</code> です。 <code>nodeSelector</code> を追加するために <code>cluster</code> CR オブジェクトを編集します。 まず、それを見てください：</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -598,7 +602,7 @@ status:
 </div>
 </div>
 <div class="paragraph">
-<p>You will see something like:</p>
+<p>次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -645,7 +649,7 @@ status:
 </div>
 </div>
 <div class="paragraph">
-<p>If you run the following command:</p>
+<p>次のコマンドを実行すると:</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -653,17 +657,17 @@ status:
 </div>
 </div>
 <div class="paragraph">
-<p>It will modify the <code>.spec</code> of the registry CR in order to add the desired <code>nodeSelector</code>.</p>
+<p>目的の <code>nodeSelector</code> を追加するために、レジストリ CR の「.spec」を変更します。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>At this time the image registry is not using a separate project for its operator. Both the operator and the operand are housed in the <code>openshift-image-registry</code> project.</p>
+<p>現時点では、イメージ レジストリはそのオペレーター用に別のプロジェクトを使用していません。 演算子とオペランドの両方が <code>openshift-image-registry</code> プロジェクトに格納されています。</p>
 </div>
 </div>
 </div>
 <div class="paragraph">
-<p>After you run the patch command you should see the registry pod being moved to the infra node. The registry is in the <code>openshift-image-registry</code> project. If you execute the following quickly enough:</p>
+<p>パッチ コマンドを実行すると、レジストリ ポッドがインフラ ノードに移動されていることがわかります。 レジストリーは <code>openshift-image-registry</code> プロジェクトにあります。 以下を十分に迅速に実行した場合：</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -671,16 +675,16 @@ status:
 </div>
 </div>
 <div class="paragraph">
-<p>You might see the old registry pod terminating and the new one starting. Since the registry is being backed by an S3 bucket, it doesn&#8217;t matter what node the new registry pod instance lands on. It&#8217;s talking to an object store via an API, so any existing images stored there will remain accessible.</p>
+<p>古いレジストリ ポッドが終了し、新しいレジストリ ポッドが開始されることがあります。 レジストリは S3 バケットによってサポートされているため、新しいレジストリ ポッド インスタンスがどのノードに到達するかは問題ではありません。 API を介してオブジェクト ストアと通信しているため、そこに保存されている既存の画像には引き続きアクセスできます。</p>
 </div>
 <div class="paragraph">
-<p>Also note that the default replica count is 1. In a real-world environment you might wish to scale that up for better availability, network throughput, or other reasons.</p>
+<p>また、デフォルトのレプリカ数は 1 であることに注意してください。実際の環境では、可用性、ネットワーク スループット、またはその他の理由で、これをスケールアップしたい場合があります。</p>
 </div>
 <div class="paragraph">
-<p>If you look at the node on which the registry landed (see the section on the router), you&#8217;ll note that it is now running on an infra worker.</p>
+<p>レジストリが到達したノード (ルーターのセクションを参照) を見ると、現在はインフラ ワーカーで実行されていることがわかります。</p>
 </div>
 <div class="paragraph">
-<p>Lastly, notice that the <code>CRD</code> for the image registry&#8217;s configuration is not namespaced&#8201;&#8212;&#8201;it is cluster scoped. There is only one internal/integrated registry per OpenShift cluster.</p>
+<p>最後に、イメージ レジストリの構成の <code>CRD</code> は名前空間ではなく、クラスター スコープであることに注意してください。 OpenShift クラスターごとに 1 つの内部/統合レジストリーしかありません。</p>
 </div>
 </div>
 </div>
@@ -688,10 +692,10 @@ status:
 <h2 id="_monitoring"><a class="anchor" href="#_monitoring"></a>Monitoring</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Cluster Monitoring operator is responsible for deploying and managing the state of the Prometheus+Grafana+AlertManager cluster monitoring stack. It is installed by default during the initial cluster installation. Its operator uses a <code>ConfigMap</code> in the <code>openshift-monitoring</code> project to set various tunables and settings for the behavior of the monitoring stack.</p>
+<p>クラスター監視オペレーターは、Prometheus+Grafana+AlertManager クラスター監視スタックの状態のデプロイと管理を担当します。 クラスタの初期インストール時にデフォルトでインストールされます。 そのオペレーターは、<code>openshift-monitoring</code> プロジェクトの <code>ConfigMap</code> を使用して、監視スタックの動作に関するさまざまな調整可能変数と設定を設定します。</p>
 </div>
 <div class="paragraph">
-<p>The following <code>ConfigMap</code> definition will configure the monitoring solution to be redeployed onto infrastructure nodes.</p>
+<p>次の <code>ConfigMap</code> 定義は、モニタリング ソリューションをインフラストラクチャ ノードに再デプロイするように構成します。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -726,7 +730,7 @@ data:
 </div>
 </div>
 <div class="paragraph">
-<p>There is no <code>ConfigMap</code> created as part of the installation. Without one, the operator will assume default settings. Verify the <code>ConfigMap</code> is not defined in your cluster:</p>
+<p>インストールの一部として作成される <code>ConfigMap</code> はありません。 これがないと、オペレーターはデフォルト設定を想定します。 <code>ConfigMap</code> がクラスターで定義されていないことを確認します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -734,7 +738,7 @@ data:
 </div>
 </div>
 <div class="paragraph">
-<p>You should see:</p>
+<p>以下が表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -742,7 +746,7 @@ data:
 </div>
 </div>
 <div class="paragraph">
-<p>The operator will, in turn, create several <code>ConfigMap</code> objects for the various monitoring stack components, and you can see them, too:</p>
+<p>次に、オペレーターは、さまざまな監視スタック コンポーネント用にいくつかの <code>ConfigMap</code> オブジェクトを作成し、それらも表示できます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -750,7 +754,7 @@ data:
 </div>
 </div>
 <div class="paragraph">
-<p>You can create the new monitoring config with the following command:</p>
+<p>次のコマンドを使用して、新しい監視構成を作成できます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -758,7 +762,7 @@ data:
 </div>
 </div>
 <div class="paragraph">
-<p>Watch the monitoring pods move from <code>worker</code> to <code>infra</code> <code>Nodes</code> with:</p>
+<p>監視ポッドが <code>worker</code> から <code>infra</code>  <code>Nodes</code> に移動するのを次のように確認します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -766,7 +770,7 @@ data:
 </div>
 </div>
 <div class="paragraph">
-<p>or:</p>
+<p>もしくは、</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -774,7 +778,7 @@ data:
 </div>
 </div>
 <div class="paragraph">
-<p>You can exit by pressing kbd:[Ctrl+C].</p>
+<p>kbd:[Ctrl+C] を押すと終了できます。</p>
 </div>
 </div>
 </div>
