@@ -131,30 +131,30 @@
 <h2 id="_application_storage_basics"><a class="anchor" href="#_application_storage_basics"></a>Application Storage Basics</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If a pod in OpenShift needs reliable storage, for example, to host a database, we would need to supply a <strong>persistent</strong> volume to the pod. This type of storage outlives the container, i.e. it persists when the pod dies. It typically comes from an external storage system.</p>
+<p>たとえば、データベースをホストするために、OpenShift のポッドが信頼できるストレージを必要とする場合、ポッドに <strong>永続</strong> ボリュームを提供する必要があります。 このタイプのストレージはコンテナーよりも長く存続します。つまり、ポッドが終了しても存続します。 通常、外部ストレージ システムから取得されます。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>Doing these exercises requires that you already have deployed the application featured in the Application Management Basics exercises. You should do those exercises now before continuing.</p>
+<p>これらの演習を行うには、アプリケーション管理の基本演習で取り上げたアプリケーションをすでにデプロイしている必要があります。 続行する前に、これらの演習を今すぐ行う必要があります。</p>
 </div>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>mapit</code> application currently doesn&#8217;t leverage any persistent storage. If the pod dies, so does all the content inside the container.</p>
+<p><code>mapit</code> アプリケーションは現在、永続ストレージを利用していません。 Pod が死ぬと、コンテナ内のすべてのコンテンツも死にます。</p>
 </div>
 <div class="paragraph">
-<p>We will talk about this concept in more detail later. But let&#8217;s imagine for a moment, the <code>mapit</code> application needs persistent storage available under the <code>/app-storage</code> directory inside the container.</p>
+<p>この概念については、後で詳しく説明します。 しかし、しばらく想像してみましょう。<code>mapit</code> アプリケーションは、コンテナ内の <code>/app-storage</code> ディレクトリの下で利用可能な永続的なストレージを必要とします。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>The directories that make up the container&#8217;s internal filesystem are a blend of the read-only layers of the container image and the top-most writable layer that is added as soon as a container instance is started from the image. The writable layer is disposed of once the container is deleted which can happen regularly in a dynamic container orchestration environment.</p>
+<p>コンテナーの内部ファイルシステムを構成するディレクトリは、コンテナー イメージの読み取り専用レイヤーと、コンテナー インスタンスがイメージから開始されるとすぐに追加される書き込み可能な最上位レイヤーのブレンドです。 動的なコンテナー オーケストレーション環境では、コンテナーが削除されると、書き込み可能なレイヤーは破棄されます。</p>
 </div>
 </div>
 </div>
 <div class="paragraph">
-<p>You should be in the <code>app-management</code> project from the previous lab. To make sure, run the following command:</p>
+<p>前のラボの「app-management」プロジェクトにいる必要があります。 確認するには、次のコマンドを実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -164,7 +164,7 @@
 <div class="sect2">
 <h3 id="_adding_persistent_volume_claims"><a class="anchor" href="#_adding_persistent_volume_claims"></a>Adding Persistent Volume Claims</h3>
 <div class="paragraph">
-<p>Here&#8217;s how you would instruct OpenShift to create a <code>PersistentVolume</code> object, which represents external, persistent storage, and have it <strong>mounted</strong> inside the container&#8217;s filesystem:</p>
+<p>OpenShift に、外部の永続ストレージを表す <code>PersistentVolume</code> オブジェクトを作成し、それをコンテナーのファイルシステム内に <strong>mounted</strong> するように指示する方法は次のとおりです。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -172,7 +172,7 @@
 </div>
 </div>
 <div class="paragraph">
-<p>The output looks like this:</p>
+<p>出力は次のようになります。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -180,13 +180,13 @@
 </div>
 </div>
 <div class="paragraph">
-<p>In the first step a <strong>PersistentVolumeClaim</strong> was created. This object represents a request for storage of a certain kind, with a certain capacity from the user to OpenShift.</p>
+<p>最初のステップで、<strong>PersistentVolumeClaim</strong> が作成されました。 このオブジェクトは、ユーザーから OpenShift への特定の容量を持つ、特定の種類のストレージの要求を表します。</p>
 </div>
 <div class="paragraph">
-<p>Next the <code>Deployment</code> of <code>mapit</code> is updated to reference this storage and make it available under the <code>/app-storage</code> directory inside the pod.</p>
+<p>次に、このストレージを参照するように <code>mapit</code> の「Deployment」を更新し、ポッド内の <code>/app-storage</code> ディレクトリで使用できるようにします。</p>
 </div>
 <div class="paragraph">
-<p>You can see the new <code>Deployment</code> like this:</p>
+<p>新しい <code>Deployment</code> は次のように表示されます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -194,7 +194,7 @@
 </div>
 </div>
 <div class="paragraph">
-<p>The output will show that a new deployment was created by inspecting the <code>AGE</code> column.</p>
+<p>出力には、「AGE」列を調べることで、新しいデプロイが作成されたことが示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -203,7 +203,7 @@ mapit   1/1     1            1           14m</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Likely, depending when you ran the command, you may or may not see that the new pod is still being spawned:</p>
+<p>おそらく、コマンドをいつ実行したかによって、新しいポッドがまだ生成されていることがわかる場合とわからない場合があります。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -219,7 +219,7 @@ mapit-4-deploy   1/1       Running             0          10s</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Take a look at the <code>Deployment</code> now:</p>
+<p>今すぐ <code>Deployment</code> を見てください:</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -227,7 +227,7 @@ mapit-4-deploy   1/1       Running             0          10s</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>You will see there is now both <code>Mounts</code> and <code>Volumes</code> details about the new storage:</p>
+<p>新しいストレージに関する「Mounts」と「Volumes」の両方の詳細が表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -243,13 +243,13 @@ mapit-4-deploy   1/1       Running             0          10s</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>But what is happening under the covers?</p>
+<p>しかし、カバーの下で何が起こっているのでしょうか?</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_storage_classes"><a class="anchor" href="#_storage_classes"></a>Storage Classes</h3>
 <div class="paragraph">
-<p>When OpenShift 4 was first installed, a dynamic storage provider for AWS EBS was configured. You can see this <code>StorageClass</code> with the following:</p>
+<p>OpenShift 4 が最初にインストールされたとき、AWS EBS の動的ストレージ プロバイダーが構成されました。 この <code>StorageClass</code> は次のように表示できます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -257,7 +257,7 @@ mapit-4-deploy   1/1       Running             0          10s</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>And you will see something like:</p>
+<p>And 次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -267,12 +267,12 @@ gp2-csi         ebs.csi.aws.com         Delete          WaitForFirstConsumer   t
 </div>
 </div>
 <div class="paragraph">
-<p>Any time a request for a volume is made (<code>PersistentVolumeClaim</code>) that doesn&#8217;t specify a <code>StorageClass</code>, the default will be used. In this case, the default is an EBS provisioner that will create an EBS GP2 volume of the requested size (in our example, 1Gi).</p>
+<p><code>StorageClass</code> を指定しないボリュームのリクエスト (<code>PersistentVolumeClaim</code>) が行われると、デフォルトが使用されます。 この場合、デフォルトは、要求されたサイズ (この例では 1Gi) の EBS GP2 ボリュームを作成する EBS プロビジョナーです。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>You&#8217;ll note that there is also a <code>gp2-csi</code>. This implements the <a href="https://github.com/container-storage-interface/spec">CSI interface</a>, which stands for "Container Storage Interface". This specification enables storage vendors to develop their plugins once, and have it work across various container orchestration systems.</p>
+<p><code>gp2-csi</code> もあります。 これは、「Container Storage Interface」の略である <a href="https://github.com/container-storage-interface/spec">CSI Interface</a> を実装します。 この仕様により、ストレージ ベンダーはプラグインを一度開発すれば、さまざまなコンテナ オーケストレーション システムで動作させることができます。</p>
 </div>
 </div>
 </div>
@@ -280,10 +280,10 @@ gp2-csi         ebs.csi.aws.com         Delete          WaitForFirstConsumer   t
 <div class="sect2">
 <h3 id="_persistent_volume_claims"><a class="anchor" href="#_persistent_volume_claims"></a>Persistent Volume (Claims)</h3>
 <div class="paragraph">
-<p>The command you ran earlier referenced a <code>claim</code>. Storage in a Kubernetes environment uses a system of volume claims and volumes. A user makes a <code>PersistentVolumeClaim</code> and Kubernetes tries to find a <code>PersistentVolume</code> that matches. In the case where a volume does not already exist, if there is a dynamic provisioner that satisfies the claim, a <code>PersistentVolume</code> is created.</p>
+<p>前に実行したコマンドは「クレーム」を参照していました。 Kubernetes 環境のストレージは、ボリューム クレームとボリュームのシステムを使用します。 ユーザーが <code>PersistentVolumeClaim</code> を作成すると、Kubernetes は一致する <code>PersistentVolume</code> を見つけようとします。 ボリュームがまだ存在しない場合、要求を満たす動的プロビジョナーがあれば、 <code>PersistentVolume</code> が作成されます。</p>
 </div>
 <div class="paragraph">
-<p>Execute the following:</p>
+<p>以下を実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -291,7 +291,7 @@ gp2-csi         ebs.csi.aws.com         Delete          WaitForFirstConsumer   t
 </div>
 </div>
 <div class="paragraph">
-<p>You will see something like the following:</p>
+<p>次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -300,10 +300,10 @@ pvc-4397c6be-9f53-490e-960d-c1b77de6000c   1Gi        RWO            Delete     
 </div>
 </div>
 <div class="paragraph">
-<p>This is the volume that was created as a result of your earlier claim. Note that the volume is <strong>bound</strong> to the claim that exists in the <code>app-management</code> project.</p>
+<p>これは、以前の請求の結果として作成されたボリュームです。 ボリュームは、「app-management」プロジェクトに存在するクレームに <strong>bound</strong> されていることに注意してください。</p>
 </div>
 <div class="paragraph">
-<p>Now, execute:</p>
+<p>次に、実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -311,7 +311,7 @@ pvc-4397c6be-9f53-490e-960d-c1b77de6000c   1Gi        RWO            Delete     
 </div>
 </div>
 <div class="paragraph">
-<p>You will see something like:</p>
+<p>次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -320,7 +320,7 @@ mapit-storage   Bound    pvc-4397c6be-9f53-490e-960d-c1b77de6000c   1Gi        R
 </div>
 </div>
 <div class="paragraph">
-<p>A rollout is taking place, since the <code>pod</code> needs to mount the created storage.</p>
+<p><code>pod</code> は作成されたストレージをマウントする必要があるため、ロールアウトが行われています。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -331,7 +331,7 @@ mapit-storage   Bound    pvc-4397c6be-9f53-490e-960d-c1b77de6000c   1Gi        R
 <div class="sect2">
 <h3 id="_testing_persistent_storage"><a class="anchor" href="#_testing_persistent_storage"></a>Testing Persistent Storage</h3>
 <div class="paragraph">
-<p>Log on to the pod using the remote-shell capability of the <code>oc</code> client:</p>
+<p><code>oc</code> クライアントのリモートシェル機能を使用してポッドにログオンします。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -339,7 +339,7 @@ mapit-storage   Bound    pvc-4397c6be-9f53-490e-960d-c1b77de6000c   1Gi        R
 </div>
 </div>
 <div class="paragraph">
-<p><strong>Being in the container&#8217;s shell session</strong>, list the content of the root directory from the perspective of the container&#8217;s namespace:</p>
+<p><strong>コンテナーのシェル セッション</strong> で、コンテナーの名前空間の観点からルート ディレクトリの内容を一覧表示します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -347,7 +347,7 @@ mapit-storage   Bound    pvc-4397c6be-9f53-490e-960d-c1b77de6000c   1Gi        R
 </div>
 </div>
 <div class="paragraph">
-<p>You will see a directory there called <code>/app-storage</code>:</p>
+<p>そこに <code>/app-storage</code> というディレクトリが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -379,13 +379,13 @@ drwxr-xr-x.   1 root  root         41 Dec 14  2016 var</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><strong>&lt;1&gt;</strong> This is where the persistent storage appears inside the container</p>
+<p><strong>&lt;1&gt;</strong> これは、コンテナ内の永続ストレージが表示される場所です</p>
 </div>
 <div class="paragraph">
-<p>Amazon EBS volumes are read-write-once. In other words, because they are block storage, they may only be attached to one EC2 instance at a time, which means that only one container can use an EBS-based <code>PersistentVolume</code> at a time. In other words: read-write-once.</p>
+<p>Amazon EBS ボリュームは、一度だけ読み書きできます。 つまり、これらはブロック ストレージであるため、一度に 1 つの EC2 インスタンスにのみアタッチできます。つまり、一度に 1 つのコンテナーのみが EBS ベースの <code>PersistentVolume</code> を使用できます。 つまり、読み書きは 1 回だけです。</p>
 </div>
 <div class="paragraph">
-<p>Execute the following inside the remote shell session:</p>
+<p>リモート シェル セッション内で次を実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -394,7 +394,7 @@ exit</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then, make sure your file is present:</p>
+<p>次に、ファイルが存在することを確認します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -402,7 +402,7 @@ exit</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now, to verify that persistent storage really works, delete your pod:</p>
+<p>ここで、永続ストレージが実際に機能することを確認するために、ポッドを削除します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -410,7 +410,7 @@ exit</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>deployment</code> automatically rollsout a new <code>pod</code>:</p>
+<p><code>deployment</code> は、新しい <code>pod</code> を自動的にロールアウトします。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -418,7 +418,7 @@ exit</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Your new pod is ready and running. Now that it&#8217;s running, check the file:</p>
+<p>新しいポッドの準備ができて実行中です。 実行されたので、ファイルを確認します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -426,10 +426,10 @@ exit</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>It&#8217;s still there. In fact, the new pod may not even be running on the same node as the old pod, which means that, under the covers, Kubernetes and OpenShift automatically attached the real, external storage to the right place at the right time.</p>
+<p>それはまだそこにあります。 実際、新しいポッドは古いポッドと同じノードで実行されていない可能性もあります。つまり、内部では、Kubernetes と OpenShift が実際の外部ストレージを適切な場所に適切なタイミングで自動的に接続していることを意味します。</p>
 </div>
 <div class="paragraph">
-<p>If you needed read-write-many storage, file-based storage solutions can provide it. OpenShift Container Storage is a hyperconverged storage solution that can run inside OpenShift and provide file, block and even object storage by turning locally attached storage devices into storage pools and then creating volumes out of them.</p>
+<p>読み書き多用のストレージが必要な場合は、ファイルベースのストレージ ソリューションがそれを提供できます。 OpenShift Container Storage は、OpenShift 内で実行できるハイパーコンバージド ストレージ ソリューションであり、ローカルに接続されたストレージ デバイスをストレージ プールに変換し、そこからボリュームを作成することで、ファイル、ブロック、さらにはオブジェクト ストレージを提供します。</p>
 </div>
 </div>
 </div>
