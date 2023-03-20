@@ -131,18 +131,20 @@
 <h2 id="_machinesets_machines_and_nodes"><a class="anchor" href="#_machinesets_machines_and_nodes"></a>MachineSets, Machines, and Nodes</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Kubernetes <code>Nodes</code> are where containers are orchestrated and run in <code>Pods</code>. OpenShift 4 is fundamentally different than OpenShift 3 with respect to its focus on automated operations through the use of <code>Operators</code>. With respect to <code>Nodes</code>, there is a set of <code>Operators</code> and controllers that are focused on maintaining the state of the cluster size&#8201;&#8212;&#8201;including creating and destroying <code>Nodes</code>!</p>
+<p>Kubernetes の <code>Nodes</code> は、コンテナーがオーケストレーションされ、 <code>Pods</code> で実行される場所です。 OpenShift 4 は、 <code>Operators</code> の使用による自動化された操作に重点を置いているという点で、OpenShift 3 とは根本的に異なります。  <code>Nodes</code> に関しては、クラスター サイズの状態を維持することに重点を置いた一連の <code>Operator</code> とコントローラーがあります。これには、 <code>Nodes</code> の作成と破棄が含まれます。</p>
 </div>
 <div class="sect2">
 <h3 id="_machinesets_and_machines"><a class="anchor" href="#_machinesets_and_machines"></a>MachineSets and Machines</h3>
 <div class="paragraph">
-<p>As you saw in the application management exercises, there is a basic fundamental relationship between a <code>ReplicaSet</code>/<code>ReplicationController</code> and the <code>Pods</code> it creates. Similarly, there is a relationship between a <code>MachineSet</code> and a <code>Machine</code>.</p>
+<p>アプリケーション管理の演習で見たように、<code>ReplicaSet</code>/<code>ReplicationController</code> とそれが作成する <code>Pod</code> の間には基本的な基本的な関係があります。 同様に、MachineSet と Machine の間にも関係があります。</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>`MachineSet` は、一連の `Machine` オブジェクトの望ましい状態を定義します。 IPI インストールを使用する場合、各 `Machine` の基礎となるインスタンスが実際に存在することを確認し、最後にすべての `Machine` が `Nodes` になるようにする `Operator` があります。</pre>
+</div>
 </div>
 <div class="paragraph">
-<p>The <code>MachineSet</code> defines a desired state for a set of <code>Machine</code> objects. When using IPI installations, then, there is an <code>Operator</code> whose job it is to make sure that there is actually an underlying instance for each <code>Machine</code> and, finally, that every <code>Machine</code> becomes a <code>Node</code>.</p>
-</div>
-<div class="paragraph">
-<p>Execute the following:</p>
+<p>以下を実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -150,7 +152,7 @@
 </div>
 </div>
 <div class="paragraph">
-<p>You will see something like:</p>
+<p>次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -161,7 +163,7 @@ cluster-6ljsd-9b8vz-worker-us-east-2c   0         0                             
 </div>
 </div>
 <div class="paragraph">
-<p>When OpenShift was installed, the installer interrogated the cloud provider to learn about the available AZs (since this is on AWS). It then ultimately created a <code>MachineSet</code> for each AZ and then scaled those sets, in order, until it reached the desired number of <code>Machines</code>. Since the default installation has 2 workers, the first 2 AZs got one worker each. The rest got zero.</p>
+<p>OpenShift がインストールされると、インストーラーはクラウド プロバイダーに問い合わせて、利用可能な AZ について調べました (これは AWS 上にあるため)。 次に、最終的に各 AZ の <code>MachineSet</code> を作成し、必要な数の <code>Machine</code> に達するまで、これらのセットを順番にスケーリングしました。 デフォルトのインストールには 2 つのワーカーがあるため、最初の 2 つの AZ にはそれぞれ 1 つのワーカーが割り当てられます。 残りはゼロになりました。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -169,7 +171,7 @@ cluster-6ljsd-9b8vz-worker-us-east-2c   0         0                             
 </div>
 </div>
 <div class="paragraph">
-<p>You will see something like:</p>
+<p>次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -183,17 +185,17 @@ cluster-f4a3-lpxbs-worker-us-east-2c-5tmg7   i-0151c72cd85f85038   running   m5.
 </div>
 </div>
 <div class="paragraph">
-<p>Each <code>Machine</code> has a corresponding <code>INSTANCE</code>. Do those IDs look familiar? They are AWS EC2 instance IDs. You also see <code>Machines</code> for the OpenShift masters. They are not part of a <code>MachineSet</code> because they are somewhat stateful and their management is handled by different operators and through a different process.</p>
+<p>各 <code>Machine</code> には、対応する <code>INSTANCE</code> があります。 これらの ID に見覚えはありますか? これらは AWS EC2 インスタンス ID です。 OpenShift マスターの <code>Machines</code> も表示されます。 それらはある程度ステートフルであり、それらの管理は異なるオペレーターによって、異なるプロセスを通じて処理されるため、 <code>MachineSet</code> の一部ではありません。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>There is currently no protection for the master <code>Machines</code>. Do not accidentally or intentionally delete them, as this will potentially break your cluster. It is repairable, but it is not fun.</p>
+<p>現在、マスターの <code>Machines</code> に対する保護はありません。 誤ってまたは意図的に削除しないでください。クラスターが破損する可能性があります。 修理可能ですが、楽しくありません。</p>
 </div>
 </div>
 </div>
 <div class="paragraph">
-<p>Lastly, execute:</p>
+<p>最後に、次を実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -201,7 +203,7 @@ cluster-f4a3-lpxbs-worker-us-east-2c-5tmg7   i-0151c72cd85f85038   running   m5.
 </div>
 </div>
 <div class="paragraph">
-<p>You will see something like:</p>
+<p>次のようなものが表示されます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -215,19 +217,23 @@ ip-10-0-244-159.us-east-2.compute.internal   Ready    master   4h6m    v1.22.3+e
 </div>
 </div>
 <div class="paragraph">
-<p>Each <code>Machine</code> ends up corresponding to a <code>Node</code>. With IPI, there is a bootstrap process where the machine operator will create an EC2 instance and then Ignition inside the RHEL CoreOS operating system will receive initial instructions from the operator. This results in the EC2 instance being configured as an OpenShift node and joining the cluster.</p>
+<p>各 <code>Machine</code> は最終的に <code>Node</code> に対応します。 IPI では、マシン オペレーターが EC2 インスタンスを作成し、RHEL CoreOS オペレーティング システム内の Ignition がオペレーターから最初の指示を受け取るブートストラップ プロセスがあります。 これにより、EC2 インスタンスが OpenShift ノードとして構成され、クラスターに参加します。</p>
 </div>
 <div class="paragraph">
-<p>If you spend some time using <code>oc describe</code> and the various <code>Machine</code> and <code>Node</code> objects, you will figure out which ones correlate with which.</p>
+<p><code>oc describe</code> とさまざまな <code>Machine</code> および <code>Node</code> オブジェクトをしばらく使用すると、どのオブジェクトがどのオブジェクトと関連しているかがわかります。</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_cluster_scaling"><a class="anchor" href="#_cluster_scaling"></a>Cluster Scaling</h3>
-<div class="paragraph">
-<p>Because of the magic of <code>Operators</code> and the way in which OpenShift uses them to manage <code>Machines</code> and <code>Nodes</code>, scaling your cluster in OpenShift 4 is extremely trivial.</p>
+<div class="literalblock">
+<div class="content">
+<pre>`Operators` の魔法と、OpenShift が `Operators` を使用して `Machines` と `Nodes` を管理する方法により、OpenShift 4 でクラスターをスケーリングすることは非常に簡単です。</pre>
 </div>
-<div class="paragraph">
-<p>Look at the list of <code>MachineSets</code> again:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>`MachineSets` のリストをもう一度見てください。</pre>
+</div>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -235,7 +241,7 @@ ip-10-0-244-159.us-east-2.compute.internal   Ready    master   4h6m    v1.22.3+e
 </div>
 </div>
 <div class="paragraph">
-<p>Within that list, we will scale one of the <code>MachineSet</code> objects with the <code>oc scale</code> command. Run:</p>
+<p>そのリスト内で、 <code>oc scale</code> コマンドを使用して <code>MachineSet</code> オブジェクトの 1 つをスケーリングします。 走る：</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -245,7 +251,7 @@ oc scale machineset ${CLUSTERNAME}-worker-${ZONENAME} -n openshift-machine-api -
 </div>
 </div>
 <div class="paragraph">
-<p>Take special note the <code>MachineSet</code> scaled is likely different from the one that is shown in the lab guide. You should see a note that the <code>MachineSet</code> was successfully scaled. Now, look at the list of <code>Machines</code>:</p>
+<p>スケーリングされた <code>MachineSet</code> は、ラボ ガイドに示されているものとは異なる可能性があることに注意してください。  <code>MachineSet</code> が正常にスケーリングされたというメモが表示されるはずです。 それでは、<code>Machines</code> のリストを見てください:</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -253,7 +259,7 @@ oc scale machineset ${CLUSTERNAME}-worker-${ZONENAME} -n openshift-machine-api -
 </div>
 </div>
 <div class="paragraph">
-<p>You probably already have new entries for 2 new <code>Machine</code> with a <code>STATE</code> of <code>Pending</code>. After a few moments, both will have a corresponding EC2 instance ID and will look something like:</p>
+<p>おそらく、<code>Pending</code> の <code>STATE</code> を持つ 2 つの新しい <code>Machine</code> の新しいエントリが既にあるはずです。 しばらくすると、両方が対応する EC2 インスタンス ID を持ち、次のようになります。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -261,7 +267,7 @@ oc scale machineset ${CLUSTERNAME}-worker-${ZONENAME} -n openshift-machine-api -
 </div>
 </div>
 <div class="paragraph">
-<p>At this point, in the background, the bootstrap process is happening automatically. After several minutes (up to five or so), take a look at the output of:</p>
+<p>この時点で、バックグラウンドで、ブートストラップ プロセスが自動的に行われます。 数分後 (最大 5 分程度)、次の出力を確認します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -269,7 +275,7 @@ oc scale machineset ${CLUSTERNAME}-worker-${ZONENAME} -n openshift-machine-api -
 </div>
 </div>
 <div class="paragraph">
-<p>You should see your fresh and happy new nodes. They are the ones with a very young age:</p>
+<p>新鮮で幸せな新しいノードが表示されるはずです。 彼らは非常に若い年齢のものです：</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -278,18 +284,20 @@ oc scale machineset ${CLUSTERNAME}-worker-${ZONENAME} -n openshift-machine-api -
 </div>
 <div class="exampleblock">
 <div class="content">
+<div class="literalblock">
+<div class="content">
+<pre>`Machine` が準備され、 `Node` として追加されるまでに数分かかる場合があります。 必要に応じて、 `oc get nodes` に対して `watch` を実行することで、プロセスをたどることができます。</pre>
+</div>
+</div>
+</div>
+</div>
 <div class="paragraph">
-<p>It can take several minutes for a <code>Machine</code> to be prepared and added as a <code>Node</code>. You can follow the process by running a <code>watch</code> against <code>oc get nodes</code> if you wish.</p>
-</div>
-</div>
-</div>
-<div class="paragraph">
-<p>Scale the <code>MachineSet</code> from two back down to one before continuing.</p>
+<p>続行する前に、<code>MachineSet</code> を 2 つから 1 つにスケールダウンします。</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>Make sure you&#8217;ve set the ${CLUSTERNAME} and ${ZONENAME} varaible from when you scaled up, a few steps ago.</p>
+<p>${CLUSTER NAME} 変数と ${ZONE NAME} 変数を、数ステップ前にスケールアップしたときに設定したことを確認してください。</p>
 </div>
 </div>
 </div>
