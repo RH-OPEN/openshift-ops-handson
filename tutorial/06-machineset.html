@@ -131,26 +131,15 @@
 <h2 id="_machinesets_machines_and_nodes"><a class="anchor" href="#_machinesets_machines_and_nodes"></a>MachineSets, Machines, and Nodes</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Kubernetes <code>Nodes</code> are where containers are orchestrated and run in <code>Pods</code>.
-OpenShift 4 is fundamentally different than OpenShift 3 with respect to its
-focus on automated operations through the use of <code>Operators</code>. With respect
-to <code>Nodes</code>, there is a set of <code>Operators</code> and controllers that are focused on
-maintaining the state of the cluster size&#8201;&#8212;&#8201;including creating and
-destroying <code>Nodes</code>!</p>
+<p>Kubernetes <code>Nodes</code> are where containers are orchestrated and run in <code>Pods</code>. OpenShift 4 is fundamentally different than OpenShift 3 with respect to its focus on automated operations through the use of <code>Operators</code>. With respect to <code>Nodes</code>, there is a set of <code>Operators</code> and controllers that are focused on maintaining the state of the cluster size&#8201;&#8212;&#8201;including creating and destroying <code>Nodes</code>!</p>
 </div>
 <div class="sect2">
 <h3 id="_machinesets_and_machines"><a class="anchor" href="#_machinesets_and_machines"></a>MachineSets and Machines</h3>
 <div class="paragraph">
-<p>As you saw in the application management exercises, there is a basic
-fundamental relationship between a <code>ReplicaSet</code>/<code>ReplicationController</code> and
-the <code>Pods</code> it creates. Similarly, there is a relationship between a
-<code>MachineSet</code> and a <code>Machine</code>.</p>
+<p>As you saw in the application management exercises, there is a basic fundamental relationship between a <code>ReplicaSet</code>/<code>ReplicationController</code> and the <code>Pods</code> it creates. Similarly, there is a relationship between a <code>MachineSet</code> and a <code>Machine</code>.</p>
 </div>
 <div class="paragraph">
-<p>The <code>MachineSet</code> defines a desired state for a set of <code>Machine</code> objects. When
-using IPI installations, then, there is an <code>Operator</code> whose job it is to make
-sure that there is actually an underlying instance for each <code>Machine</code> and,
-finally, that every <code>Machine</code> becomes a <code>Node</code>.</p>
+<p>The <code>MachineSet</code> defines a desired state for a set of <code>Machine</code> objects. When using IPI installations, then, there is an <code>Operator</code> whose job it is to make sure that there is actually an underlying instance for each <code>Machine</code> and, finally, that every <code>Machine</code> becomes a <code>Node</code>.</p>
 </div>
 <div class="paragraph">
 <p>Execute the following:</p>
@@ -172,12 +161,7 @@ cluster-6ljsd-9b8vz-worker-us-east-2c   0         0                             
 </div>
 </div>
 <div class="paragraph">
-<p>When OpenShift was installed, the installer interrogated the cloud provider
-to learn about the available AZs (since this is on AWS). It then ultimately
-created a <code>MachineSet</code> for each AZ and then scaled those sets, in order,
-until it reached the desired number of <code>Machines</code>. Since the default
-installation has 2 workers, the first 2 AZs got one worker each. The rest got
-zero.</p>
+<p>When OpenShift was installed, the installer interrogated the cloud provider to learn about the available AZs (since this is on AWS). It then ultimately created a <code>MachineSet</code> for each AZ and then scaled those sets, in order, until it reached the desired number of <code>Machines</code>. Since the default installation has 2 workers, the first 2 AZs got one worker each. The rest got zero.</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -199,18 +183,12 @@ cluster-f4a3-lpxbs-worker-us-east-2c-5tmg7   i-0151c72cd85f85038   running   m5.
 </div>
 </div>
 <div class="paragraph">
-<p>Each <code>Machine</code> has a corresponding <code>INSTANCE</code>. Do those IDs look familiar?
-They are AWS EC2 instance IDs. You also see <code>Machines</code> for the OpenShift
-masters. They are not part of a <code>MachineSet</code> because they are somewhat
-stateful and their management is handled by different operators and through a
-different process.</p>
+<p>Each <code>Machine</code> has a corresponding <code>INSTANCE</code>. Do those IDs look familiar? They are AWS EC2 instance IDs. You also see <code>Machines</code> for the OpenShift masters. They are not part of a <code>MachineSet</code> because they are somewhat stateful and their management is handled by different operators and through a different process.</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>There is currently no protection for the master <code>Machines</code>. Do not
-accidentally or intentionally delete them, as this will potentially break
-your cluster. It is repairable, but it is not fun.</p>
+<p>There is currently no protection for the master <code>Machines</code>. Do not accidentally or intentionally delete them, as this will potentially break your cluster. It is repairable, but it is not fun.</p>
 </div>
 </div>
 </div>
@@ -237,23 +215,16 @@ ip-10-0-244-159.us-east-2.compute.internal   Ready    master   4h6m    v1.22.3+e
 </div>
 </div>
 <div class="paragraph">
-<p>Each <code>Machine</code> ends up corresponding to a <code>Node</code>. With IPI, there is a
-bootstrap process where the machine operator will create an EC2 instance and
-then Ignition inside the RHEL CoreOS operating system will receive initial
-instructions from the operator. This results in the EC2 instance being
-configured as an OpenShift node and joining the cluster.</p>
+<p>Each <code>Machine</code> ends up corresponding to a <code>Node</code>. With IPI, there is a bootstrap process where the machine operator will create an EC2 instance and then Ignition inside the RHEL CoreOS operating system will receive initial instructions from the operator. This results in the EC2 instance being configured as an OpenShift node and joining the cluster.</p>
 </div>
 <div class="paragraph">
-<p>If you spend some time using <code>oc describe</code> and the various <code>Machine</code> and
-<code>Node</code> objects, you will figure out which ones correlate with which.</p>
+<p>If you spend some time using <code>oc describe</code> and the various <code>Machine</code> and <code>Node</code> objects, you will figure out which ones correlate with which.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_cluster_scaling"><a class="anchor" href="#_cluster_scaling"></a>Cluster Scaling</h3>
 <div class="paragraph">
-<p>Because of the magic of <code>Operators</code> and the way in which OpenShift uses them
-to manage <code>Machines</code> and <code>Nodes</code>, scaling your cluster in OpenShift 4 is
-extremely trivial.</p>
+<p>Because of the magic of <code>Operators</code> and the way in which OpenShift uses them to manage <code>Machines</code> and <code>Nodes</code>, scaling your cluster in OpenShift 4 is extremely trivial.</p>
 </div>
 <div class="paragraph">
 <p>Look at the list of <code>MachineSets</code> again:</p>
@@ -264,8 +235,7 @@ extremely trivial.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Within that list, we will scale one of the <code>MachineSet</code> objects with the
-<code>oc scale</code> command. Run:</p>
+<p>Within that list, we will scale one of the <code>MachineSet</code> objects with the <code>oc scale</code> command. Run:</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -275,9 +245,7 @@ oc scale machineset ${CLUSTERNAME}-worker-${ZONENAME} -n openshift-machine-api -
 </div>
 </div>
 <div class="paragraph">
-<p>Take special note the <code>MachineSet</code> scaled is likely different from
-the one that is shown in the lab guide. You should see a note that the
-<code>MachineSet</code> was successfully scaled. Now, look at the list of <code>Machines</code>:</p>
+<p>Take special note the <code>MachineSet</code> scaled is likely different from the one that is shown in the lab guide. You should see a note that the <code>MachineSet</code> was successfully scaled. Now, look at the list of <code>Machines</code>:</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -285,9 +253,7 @@ the one that is shown in the lab guide. You should see a note that the
 </div>
 </div>
 <div class="paragraph">
-<p>You probably already have new entries for 2 new <code>Machine</code> with a <code>STATE</code> of
-<code>Pending</code>. After a few moments, both will have a corresponding EC2 instance ID
-and will look something like:</p>
+<p>You probably already have new entries for 2 new <code>Machine</code> with a <code>STATE</code> of <code>Pending</code>. After a few moments, both will have a corresponding EC2 instance ID and will look something like:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -295,9 +261,7 @@ and will look something like:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>At this point, in the background, the bootstrap process is happening
-automatically. After several minutes (up to five or so), take a look at the
-output of:</p>
+<p>At this point, in the background, the bootstrap process is happening automatically. After several minutes (up to five or so), take a look at the output of:</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -315,9 +279,7 @@ output of:</p>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>It can take several minutes for a <code>Machine</code> to be prepared and added
-as a <code>Node</code>. You can follow the process by running a <code>watch</code> against
-<code>oc get nodes</code> if you wish.</p>
+<p>It can take several minutes for a <code>Machine</code> to be prepared and added as a <code>Node</code>. You can follow the process by running a <code>watch</code> against <code>oc get nodes</code> if you wish.</p>
 </div>
 </div>
 </div>
@@ -327,8 +289,7 @@ as a <code>Node</code>. You can follow the process by running a <code>watch</cod
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p>Make sure you&#8217;ve set the ${CLUSTERNAME} and ${ZONENAME} varaible from
-when you scaled up, a few steps ago.</p>
+<p>Make sure you&#8217;ve set the ${CLUSTERNAME} and ${ZONENAME} varaible from when you scaled up, a few steps ago.</p>
 </div>
 </div>
 </div>
