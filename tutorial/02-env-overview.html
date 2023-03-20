@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Deploy Service :: OpenShift Ops Handson</title>
+    <title>Untitled :: OpenShift Ops Handson</title>
     <link rel="canonical" href="https://rh-open.github.io/openshift-ops-handson/tutorial/02-env-overview.html">
     <link rel="prev" href="01-setup.html">
     <link rel="next" href="03-installation.html">
@@ -127,81 +127,184 @@
   </div>
   <div class="content">
 <article class="doc">
-<h1 class="page">Deploy Service</h1>
 <div class="sect1">
-<h2 id="service"><a class="anchor" href="#service"></a>The Service</h2>
+<h2 id="_environment_overview"><a class="anchor" href="#_environment_overview"></a>Environment Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The code:</p>
+<p>{{ ENVIRONMENT }} で実行されている OpenShift 4 クラスターと対話します。 ラボでは、OpenShift Data もインストールします
+Rook/Ceph に基づく Foundation。</p>
 </div>
-<div class="listingblock lines_7 console-input">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class Main {
-
-    public static void main(String[] args) {
-
-    }
-
-}
-
-./mvnw compile</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="package"><a class="anchor" href="#package"></a>Packaging the Service</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>You can package the next bash script:</p>
+<p>OpenShift 4 インストールの基本は事前に完了しています。
+OpenShift クラスターは基本的にすべてデフォルトに設定されており、
+以下のように構成されています。：</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#!/bin/sh
-echo "Hello World"</code></pre>
+<div class="ulist">
+<ul>
+<li>
+<p>3 master nodes</p>
+</li>
+<li>
+<p>2 worker nodes</p>
+</li>
+<li>
+<p>1 bastion host</p>
+</li>
+</ul>
 </div>
+<div class="paragraph">
+<p><a href="https://github.com/openshift-labs/workshop-dashboard">Homeroom</a> は、この統合されたラボ ガイド、ターミナル、および Web コンソール ペインを提供するソリューションです。 実際には、対話するクラスター内で実行されています。</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="deploy"><a class="anchor" href="#deploy"></a>Deploy the Service</h2>
+<h2 id="_conventions"><a class="anchor" href="#_conventions"></a>Conventions</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>And then you can deploy the service and execute commands inside:</p>
+<p>これらの演習では、さまざまなコードとコマンド ブロックが表示されます。 一部のコマンド ブロックは、直接実行できます。 その他は、実行前にコマンドを変更する必要があります。 赤い枠線の付いたコマンド ブロックが表示された場合 (以下を参照)、コマンドはクリップボードにコピーされ、わずかな変更が必要になります。</p>
 </div>
 <div class="paragraph">
-<p>Check that the pod is up and running:</p>
+<p>コマンドブロックの横にあるアイコンは、コマンドが実行されるかコピーされるかを示します。</p>
 </div>
-<div class="listingblock lines_space console-input">
+<div class="ulist">
+<ul>
+<li>
+<p>このコマンド ブロックは、変更のためにクリップボードにコピーされます。</p>
+</li>
+</ul>
+</div>
+<div class="listingblock copypaste copypaste-warning">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl get pods</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs" data-lang="none">some command to modify</code></pre>
 </div>
 </div>
-<div class="listingblock console-output">
+<div class="exampleblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                        READY   STATUS    RESTARTS   AGE
-apps   1/1     Running   0          5s</code></pre>
+<div class="paragraph">
+<p>コピーしたコマンドを貼り付けるには、次を試してください</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Cmd + V <em>macOS 上の Chrome で動作することがテスト済み</em></p>
+</li>
+<li>
+<p>Ctrl + Shift + V <em>Windows 10 の Chrome および Firefox で動作することがテスト済み</em></p>
+</li>
+<li>
+<p>ターミナル ウィンドウで右クリック + 貼り付け <em>Windows 10 の Edge で動作することがテスト済み</em></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>これはコンソールで実行されます</p>
+</li>
+</ul>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs" data-lang="none">echo Hello World\!</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then let&#8217;s go into the running pod to execute some commands:</p>
+<p>ほとんどのコマンド ブロックは、自動強調表示またはクリックによる実行をサポートしています。 上のコマンド ブロックにカーソルを合わせて左クリックすると、すべてのテキストが自動的に強調表示され、コピーしやすくなります。 ブロックの横にある記号を見て、コピーまたは実行されるかどうかを確認します。</p>
 </div>
-<div class="listingblock console-input">
+<div class="sect2">
+<h3 id="_cluster_admin_authentication"><a class="anchor" href="#_cluster_admin_authentication"></a>Cluster Admin Authentication</h3>
+<div class="paragraph">
+<p>このラボ ガイドにアクセスするために提供したログインは、実際には、操作する端末や Web コンソールとは何の関係もありません。 人間以外のユーザー アカウントである <code>ServiceAccounts</code> と呼ばれる Kubernetes の機能を使用します。 ターミナルおよび Web コンソール タブは、これらの <code>ServiceAccounts</code> の 1 つを使用して OpenShift API と対話しており、そのアカウントには <em>cluster-admin</em> <code>ClusterRole</code> が付与されています。 これにより、ターミナルと Web コンソールが API に対して管理/特権アクションを実行できるようになります。</p>
+</div>
+<div class="paragraph">
+<p>OpenShift の権限は、一連のロール、ポリシー、およびバインディングによって制御されます。これらについては、このワークショップの演習の 1 つで詳しく学習します。</p>
+</div>
+<div class="paragraph">
+<p>簡単な例として、次のコマンドを実行して、<code>Role</code> とは何かについて詳しく知ることができます。</p>
+</div>
+<div class="listingblock execute">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl exec -ti apps /bin/bash</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc explain Role</code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Change the pod name with your pod name.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p><code>ClusterRole</code> がどのように異なるかを調べます。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc explain ClusterRole</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>以下を実行して、<code>RoleBinding</code> について詳しく知ることができます。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc explain RoleBinding</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>ClusterRoleBinding</code> の違いを調べます。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc explain ClusterRoleBinding</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>`oc explain [RESOURCE]` を使用して、さまざまなオブジェクトについての詳細な説明をいつでも取得できます。</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>ClusterRole</code> <em>cluster-admin</em> で定義された PolicyRules を見てみましょう。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get clusterrole cluster-admin -o yaml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>ルールの下で、<em>cluster-admin</em> ロールを持つアカウントには、apiGroup のすべての <code>resources</code> と <code>verbs</code> 、および <code>nonResourceURLs</code> のすべての <code>verbs</code> へのワイルドカード <code>*</code> アクセス権があることに注意してください。</p>
+</div>
+<div class="paragraph">
+<p><code>verb</code> は、リソースに対して実行するアクションです。  <code>delete</code> や <code>get</code> などは、OpenShift では <code>verb</code> です。</p>
+</div>
+<div class="paragraph">
+<p>特定の動詞について詳しく知るには、 <code>oc [verb] --help</code> を実行します</p>
+</div>
+<div class="paragraph">
+<p><code>verb</code>  <em>whoami</em> についてもっと学びましょう:</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc whoami --help</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>oc whoami</code> を実行して、今日使用するアカウントを確認します。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc whoami</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>ServiceAccount</code> <em>cluster-admin</em> <code>ClusterRole</code> を与えた <em>dashboard-cluster-admin</em> <code>ClusterRoleBinding</code> を調べてみましょう。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get clusterrolebinding dashboard-cluster-admin -o yaml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>この <code>ServiceAccount</code> は、この <code>ClusterRoleBinding</code> のサブジェクトであり、参照されるロールは <em>cluster-admin</em> <code>ClusterRole</code> であることに注意してください。</p>
+</div>
+<div class="paragraph">
+<p>演習全体でクラスター管理者として、前述のようにクラスターで何でもできるので、慎重に指示に従ってください。</p>
+</div>
 </div>
 </div>
 </div>
