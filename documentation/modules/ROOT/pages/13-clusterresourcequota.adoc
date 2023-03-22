@@ -1,0 +1,415 @@
+## クラスターリソースクォータ
+
+[Warning]
+====
+続行する前に、LDAPラボが終わっていることを確認してください。
+====
+
+以前のラボでは、クォータを操作して、プロジェクトにどのように適用できるかを確認しました。
+また、デフォルトのクォータを設定し、誰かが新しいプロジェクトを要求すると、いつでもデフォルトのクォータが割り当てられるようにしました。
+これらのプロジェクトクォータは、クラスタ内のリソースを管理するのに適しています。
+
+しかし、個々のプロジェクトにではなく、プロジェクト全体でクォータを適用したい場合はどうすればよいでしょうか？
+
+### 使用例
+
+プロジェクトベースの `quota` の代わりに `clusterresourcequota` を使用する場合、主に2つのケースがあります。
+そのうちの1つは、特定のユーザーに対してクォータを設定したい場合です。
+これは、ユーザーが必要なだけプロジェクトを作成できるようにしたい（つまり、優れたマルチテナントを実現したい）けれども、
+ユーザーが消費できるリソースの量を制限したい場合に便利です。
+
+もう一つの使用例は、アプリケーションの垂直方向でクォータを設定したい場合です。
+この場合、アプリケーションスタックのクォータを全体的に設定します。
+アプリケーションスタックは複数のOpenShiftプロジェクトにまたがることができるからです。
+
+このラボでは、両方のユースケースを探ります。
+
+#### ユーザーごとのクォータを設定する
+
+ユーザーに `clusterresourcequota` を設定するには、`kubeadmin` になる必要があります。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+----
+
+では、`normaluser1`にクォータを設定します。このクォータを割り当てるプロジェクトを特定するために、`openshift.io/requester=`の`annotation`キーを使用する予定です。この演習では、10個以上のポッドを作成することを禁止するハードクォータを設定します。非推奨の警告はすべて無視してください。
+
+[source,bash,role="execute"]
+----
+oc create clusterquota for-user-normaluser1 \
+    --project-annotation-selector openshift.io/requester=normaluser1 \
+    --hard pods=10
+----
+
+[Note]
+====
+構文は `openshift.io/requester=<username>` です。
+====
+
+View the configuration.
+
+[source,bash,role="execute"]
+----
+oc get clusterresourcequotas for-user-normaluser1 -o yaml
+----
+
+構成は次のようになります。
+
+[source,yaml]
+----
+apiVersion: quota.openshift.io/v1
+kind: ClusterResourceQuota
+metadata:
+  creationTimestamp: "2022-09-12T15:47:24Z"
+  generation: 1
+  name: for-user-normaluser1
+  resourceVersion: "786378"
+  uid: 575364ba-124d-4307-9bd2-f32dfe474389
+spec:
+  quota:
+    hard:
+      pods: "10"
+  selector:
+    annotations:
+      openshift.io/requester: normaluser1
+    labels: null
+----
+
+このユーザーである `normaluser1` は、彼が作成するすべてのプロジェクトで 10 個以上のポッドを作成することができません。
+これは、（`openshift.io/requester: normaluser1` アノテーションに基づき）彼が作成したプロジェクトにのみ適用され、
+彼がアクセスできるプロジェクトには適用されません。これについては後で詳しく説明します。
+
+では、`normaluser1`としてログインします。
+
+[source,bash,role="execute"]
+----
+oc login -u normaluser1 -p Op#nSh1ft
+----
+
+現在のプロジェクトをすべてリストアップします
+
+[source,bash,role="execute"]
+----
+oc get projects
+----
+
+このユーザーにはプロジェクトがないはずなので、このような出力が表示されるはずです（表示されても気にしないでください）。
+
+----
+No resources found.
+----
+
+2つのプロジェクト `welcome1` と `welcome2` を作成します。
+
+[source,bash,role="execute"]
+----
+oc new-project welcome1
+oc new-project welcome2
+----
+
+2つのアプリケーションを作成することになります。一つは `welcome1` プロジェクト、もう一つは `welcome2` プロジェクト、を作成します。
+
+[source,bash,role="execute"]
+----
+oc new-app -n welcome1 --name=php1 quay.io/redhatworkshops/welcome-php:latest
+oc new-app -n welcome2 --name=php2 quay.io/redhatworkshops/welcome-php:latest
+----
+
+デプロイ後、2つの実行中のポッドがあるはずです。各ネームスペースに1つずつです。
+それを `oc get pods` コマンドで確認してください（出力が出るまでに何度か実行する必要があるかもしれません）。
+
+[source,bash,role="execute"]
+----
+oc get pods -n welcome1 -l deployment=php1
+oc get pods -n welcome2 -l deployment=php2
+----
+
+出力はこのような感じになるはずです。
+
+----
+[~] $ oc get pods -n welcome1 -l deployment=php1
+NAME           READY   STATUS    RESTARTS   AGE
+php1-1-nww4m   1/1     Running   0          4m20s
+[~] $ oc get pods -n welcome2 -l deployment=php2
+NAME           READY   STATUS    RESTARTS   AGE
+php2-1-ljw9w   1/1     Running   0          4m20s
+----
+
+これで `kubeadmin` になることで、クォータを確認することができます。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+----
+
+ここで、`oc describe clusterresourcequotas for-user-normaluser1` を実行して、クォータの状態を確認します。
+
+[source,bash,role="execute"]
+----
+oc describe clusterresourcequotas for-user-normaluser1
+----
+
+次のような出力が表示されるはずです。
+
+----
+Name:		for-user-normaluser1
+Created:	22 minutes ago
+Labels:		<none>
+Annotations:	<none>
+Namespace Selector: ["welcome1" "welcome2"]
+Label Selector: 
+AnnotationSelector: map[openshift.io/requester:normaluser1]
+Resource	Used	Hard
+--------	----	----
+pods		2	10
+----
+
+10 Podのうち2 Podが使用されているだけでなく、クォータが適用されている namespace があることがわかります。
+`welcome1`のnamespace  マニフェストをチェックして、クォータが探しているアノテーションを確認します。
+
+[source,bash,role="execute"]
+----
+oc get ns welcome1 -o yaml
+----
+
+出力は次のようなものになるはずです。注釈に特に注意してください。
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: ""
+    openshift.io/display-name: ""
+    openshift.io/requester: normaluser1
+    openshift.io/sa.scc.mcs: s0:c27,c9
+    openshift.io/sa.scc.supplemental-groups: 1000720000/10000
+    openshift.io/sa.scc.uid-range: 1000720000/10000
+  creationTimestamp: "2022-02-15T00:18:30Z"
+  labels:
+    kubernetes.io/metadata.name: welcome1
+  name: welcome1
+  resourceVersion: "59245"
+  uid: 75612ea5-aa5d-4c99-a28c-0604efe0f457
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+----
+
+ここで、`normaluser1`として、アプリを10 Pod 以上にスケールさせてみてください。
+
+
+[source,bash,role="execute"]
+----
+oc login -u normaluser1 -p Op#nSh1ft
+oc scale deploy/php1 -n welcome1 --replicas=5
+oc scale deploy/php2 -n welcome2 --replicas=6
+----
+
+Pod がいくつ動作しているかメモしておきます。
+
+[source,bash,role="execute"]
+----
+oc get pods --no-headers -n welcome1 -l deployment=php1 | wc -l
+oc get pods --no-headers -n welcome2 -l deployment=php2 | wc -l
+----
+
+この2つのコマンドを合わせても、10個以下しか返ってこないはずです。イベントをチェックして、クォータの動きを見てみましょう。
+
+[source,bash,role="execute"]
+----
+oc get events -n welcome1 | grep "quota" | head -1
+oc get events -n welcome2 | grep "quota" | head -1
+----
+
+以下のようなメッセージが表示されるはずです。
+
+----
+3m24s       Warning   FailedCreate        replicaset/php1-89fcb8d8b    Error creating: pods "php1-89fcb8d8b-spdw2" is forbid
+den: exceeded quota: for-user-normaluser1, requested: pods=1, used: pods=10, limited: pods=10
+----
+
+状態を確認するには、`kubeadmin`アカウントに切り替えて、先ほどの`describe`コマンドを実行します。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+oc describe clusterresourcequotas for-user-normaluser1
+----
+
+Podのハードリミット(上限)に達したことが確認できるはずです。
+
+----
+Name:           for-user-normaluser1
+Created:        15 minutes ago
+Labels:         <none>
+Annotations:    <none>
+Namespace Selector: ["welcome1" "welcome2"]
+Label Selector:
+AnnotationSelector: map[openshift.io/requester:normaluser1]
+Resource        Used    Hard
+--------        ----    ----
+pods            10      10
+----
+
+#### Setting quota by label
+
+複数のプロジェクトにまたがる可能性のあるアプリケーションスタックでクォータを設定するためには、
+プロジェクトを識別するためのラベルを使用する必要があります。まず、`kubeadmin`を確認します。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+----
+
+ここで、ラベルに基づいたクォータを設定します。このラボでは、プロジェクトを識別するために
+Key/Value ベースのラベル `appstack=pricelist` を使用します。
+
+[source,bash,role="execute"]
+----
+oc create clusterresourcequota for-pricelist \
+    --project-label-selector=appstack=pricelist \
+    --hard=pods=5
+----
+
+2つのプロジェクトを作成します。
+
+[source,bash,role="execute"]
+----
+oc adm new-project pricelist-frontend
+oc adm new-project pricelist-backend
+----
+
+これら2つのプロジェクトについて、ユーザー `normaluser1` に `edit` ロールを割り当てます。
+
+[source,bash,role="execute"]
+----
+oc adm policy add-role-to-user edit normaluser1 -n pricelist-frontend
+oc adm policy add-role-to-user edit normaluser1 -n pricelist-backend
+----
+
+これらの2つのプロジェクトが `pricelist` アプリケーションスタックに属することを識別するために、対応する namespace をラベル付けする必要があります。
+
+[source,bash,role="execute"]
+----
+oc label ns pricelist-frontend appstack=pricelist
+oc label ns pricelist-backend appstack=pricelist
+----
+
+for-pricelist` のクラスタリソースクォータに対して `oc describe` コマンドを実行します。
+
+[source,bash,role="execute"]
+----
+oc describe clusterresourcequotas for-pricelist
+----
+
+両方のプロジェクトが追跡されるようになったことが確認できるはずです。
+
+----
+Name:           for-pricelist
+Created:        21 seconds ago
+Labels:         <none>
+Annotations:    <none>
+Namespace Selector: ["pricelist-frontend" "pricelist-backend"]
+Label Selector: appstack=pricelist
+AnnotationSelector: map[]
+Resource        Used    Hard
+--------        ----    ----
+pods            0       5
+----
+
+normaluser1`でログインし、それぞれのプロジェクトにアプリケーションを作成します。
+
+[source,bash,role="execute"]
+----
+oc login -u normaluser1 -p Op#nSh1ft
+oc new-app -n pricelist-frontend --name frontend quay.io/redhatworkshops/pricelist:frontend
+oc new-app -n pricelist-backend --name backend quay.io/redhatworkshops/pricelist:backend
+----
+
+`kubeadmin` としてログインし、`describe` コマンドを実行してクォータの状態を確認します。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+oc describe clusterresourcequotas for-pricelist
+----
+
+5つのポッド中、2つがこのクォータに対し使用されていることが確認できるはずです。
+
+----
+Name:           for-pricelist
+Created:        About a minute ago
+Labels:         <none>
+Annotations:    <none>
+Namespace Selector: ["pricelist-frontend" "pricelist-backend"]
+Label Selector: appstack=pricelist
+AnnotationSelector: map[]
+Resource        Used    Hard
+--------        ----    ----
+pods            2       5
+----
+
+[Note]
+====
+`pricelist-frontend` と `pricelist-backend` は `kubeadmin` によってユーザーに割り当てられたので、ユーザー `normaluser1` はさらにポッドを作成することができます。これらは `normaluser1` が作成したものではないので、`openshift.io/requester=normaluser1` アノテーションを持ちません。環境に応じてクォータポリシーを組み合わせることができることがおわかりいただけたと思います。
+====
+
+`normaluser1`でログインし直して、テストとしてアプリケーション Pod を合計 5 以上にスケールさせてみてください。
+
+[source,bash,role="execute"]
+----
+oc login -u normaluser1 -p Op#nSh1ft
+oc scale -n pricelist-frontend deploy/frontend --replicas=3
+oc scale -n pricelist-backend deploy/backend --replicas=3
+----
+
+先ほどと同じように、スケーリングができない旨のエラーが表示されるはずです。
+
+[source,bash,role="execute"]
+----
+oc get events -n pricelist-frontend | grep "quota" | head -1
+oc get events -n pricelist-backend | grep "quota" | head -1
+----
+
+出力は、他のエクササイズと同じになるはずです。
+
+----
+39s         Warning   FailedCreate        replicaset/backend-577cf89b68   Error creating: pods "backend-577cf89b68-l5svw" is
+ forbidden: exceeded quota: for-pricelist, requested: pods=1, used: pods=5, limited: pods=5
+----
+
+#### クリーンアップ
+
+まずは `kubeadmin` になることで行った作業をクリーンアップします。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+----
+
+これらのクォータは他のラボと干渉する可能性があるので、このラボで作成した `clusterresourcequota` を両方とも削除してください。
+
+[source,bash,role="execute"]
+----
+oc delete clusterresourcequotas for-pricelist for-user-normaluser1
+----
+
+また、このラボのために作成したプロジェクトも削除します。
+
+[source,bash,role="execute"]
+----
+oc delete projects pricelist-backend pricelist-frontend welcome1 welcome2
+----
+
+次のラボでは、既存のプロジェクトで `kubeadmin` としてログインしていることを確認してください。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+oc project default
+----
