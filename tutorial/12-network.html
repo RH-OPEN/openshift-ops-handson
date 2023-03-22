@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>デプロイサービス :: OpenShift Ops Handson</title>
+    <title>Untitled :: OpenShift Ops Handson</title>
     <link rel="canonical" href="https://rh-open.github.io/openshift-ops-handson/tutorial/12-network.html">
     <link rel="prev" href="11-project.html">
     <link rel="next" href="13-clusterrolebinding.html">
@@ -127,81 +127,323 @@
   </div>
   <div class="content">
 <article class="doc">
-<h1 class="page">デプロイサービス</h1>
 <div class="sect1">
-<h2 id="service"><a class="anchor" href="#service"></a>サービス</h2>
+<h2 id="_sdn_ベースの_openshift_network_policy"><a class="anchor" href="#_sdn_ベースの_openshift_network_policy"></a>SDN ベースの OpenShift Network Policy</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>コード:</p>
+<p>OpenShiftのプラットフォーム内のデフォルトのSDN（Software Defined Networking）はOpen vSwitchをベースとしており、
+OpenShift SDNと呼ばれています。</p>
 </div>
-<div class="listingblock lines_7 console-input">
+<div class="paragraph">
+<p>しかし、このクラスタはCNIに準拠したOVNKubernetesというSDNがインストールされています。
+このSDNはOpen Virtual Networkをベースにしています。今後、OpenShiftで使用するSDNとして推奨され、
+将来のリリースではデフォルトとなる予定です。
+OVNKubernetesはOpenShiftSDNと後方互換性があります。OVNKubernetesの詳細については、以下をお読みください。
+<a href="https://docs.openshift.com/container-platform/4.9/networking/ovn_kubernetes_network_provider/about-ovn-kubernetes.html">the official documentation</a>.</p>
+</div>
+<div class="paragraph">
+<p>SDN は OpenShift 環境内のアプリケーションコンポーネント間の接続を提供するために使用されます。
+デフォルトのネットワーク範囲があらかじめ設定されていますが、既存のインフラと衝突したり、その他の理由で変更することも可能です。</p>
+</div>
+<div class="paragraph">
+<p>Kubernetes の <code>NetworkPolicy</code> により、プロジェクトは OpenShift のソフトウェア定義ネットワーク内のネットワークインフラを
+まさに分離することが可能になります。OpenShift の RBAC を使ってリソースを分離するプロジェクトを見てきましたが、
+ネットワークポリシー SDN プラグインは、Pod と名前空間のラベルセレクタを使ってプロジェクト内の Pod を分離することができます。</p>
+</div>
+<div class="sect2">
+<h3 id="_プロジェクトを切替えてください"><a class="anchor" href="#_プロジェクトを切替えてください"></a>プロジェクトを切替えてください</h3>
+<div class="paragraph">
+<p>続行する前に、実際に存在するプロジェクトを使用していることを確認してください。
+もし 前のラボで最後に行ったのがプロジェクトの削除であれば、このラボのスクリプトでエラーが発生する原因となります。</p>
+</div>
+<div class="listingblock execute">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class Main {
-
-    public static void main(String[] args) {
-
-    }
-
-}
-
-./mvnw compile</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc project default</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="package"><a class="anchor" href="#package"></a>サービスのパッケージ化</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_作成スクリプトを実行する"><a class="anchor" href="#_作成スクリプトを実行する"></a>作成スクリプトを実行する</h3>
+<div class="exampleblock">
+<div class="content">
 <div class="paragraph">
-<p>次のbashスクリプトをパッケージ化することができます。</p>
+<p>プロジェクトまたはクラスタの管理権限を持つユーザーのみが、<strong>プロジェクト</strong> のネットワークポリシーを
+操作することができます。</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>弊社で用意したスクリプトを実行します。このスクリプトでは、2つの
+<strong>プロジェクト*を作成し、あなたのために *Pod</strong> を含む <strong>Deployment</strong> をデプロイします。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bash {{ HOME_PATH }}/support/create-net-projects.sh</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_作成したインフラを検証する"><a class="anchor" href="#_作成したインフラを検証する"></a>作成したインフラを検証する</h3>
+<div class="paragraph">
+<p><code>netproj-a</code> と <code>netproj-b</code> の2つの <strong>Project</strong> があなたのために作成されました。
+以下のコマンドを実行すると、作成されたリソースを確認することができます。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n netproj-a</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>しばらくすると、次のような表示が出ます。</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#!/bin/sh
-echo "Hello World"</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="deploy"><a class="anchor" href="#deploy"></a>サービスをデプロイする</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>そして、サービスをデプロイして、その中でコマンドを実行することができます。</p>
-</div>
-<div class="paragraph">
-<p>Check that the pod is up and running:</p>
-</div>
-<div class="listingblock lines_space console-input">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl get pods</code></pre>
-</div>
-</div>
-<div class="listingblock console-output">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                        READY   STATUS    RESTARTS   AGE
-apps   1/1     Running   0          5s</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">NAME           READY   STATUS              RESTARTS   AGE
+ose-1-66dz2    0/1     ContainerCreating   0          7s
+ose-1-deploy   1/1     Running             0          16s</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then let&#8217;s go into the running pod to execute some commands:</p>
+<p>同様です。</p>
 </div>
-<div class="listingblock console-input">
+<div class="listingblock execute">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl exec -ti apps /bin/bash</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n netproj-b</code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Change the pod name with your pod name.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>しばらくすると、次のような表示が出ます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">NAME           READY   STATUS      RESTARTS   AGE
+ose-1-deploy   0/1     Completed   0          38s
+ose-1-vj2gn    1/1     Running     0          30s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>netproj-a` <strong>Project*のPod内でコマンドを実行し、<code>netproj-b</code> *Project</strong>
+のPodのTCPポート5000に接続するようにします。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_接続テスト_成功するはずです"><a class="anchor" href="#_接続テスト_成功するはずです"></a>接続テスト (成功するはずです)</h3>
+<div class="paragraph">
+<p>プロジェクトとPodが揃ったので、<code>netproj-a</code> <strong>Project</strong> にあるポッドと
+<code>netproj-b</code> <strong>Project</strong> にあるPodの間の接続性をテストしてみましょう。</p>
+</div>
+<div class="paragraph">
+<p>2つのPod間の接続性をテストするには、次のように実行します。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bash {{ HOME_PATH }}/support/test-connectivity.sh</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>次のようなものが表示されます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">Getting Pod B's IP... 10.129.0.180
+Getting Pod A's Name... ose-1-66dz2
+Checking connectivity between Pod A and Pod B... worked</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>最後の行に`worked`とあることに注意してください。
+これは、<code>netproj-a</code> <strong>Project*のPodが`netproj-b` *Project</strong>
+のPodに接続できたことを意味しています。</p>
+</div>
+<div class="paragraph">
+<p>これは、デフォルトでは、ネットワークポリシーによって、すべてのプロジェクトの
+すべてのPodが互いに接続できるようになっているためです。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_アクセス制限"><a class="anchor" href="#_アクセス制限"></a>アクセス制限</h3>
+<div class="paragraph">
+<p>NetworkPolicyでは、`NetworkPolicy`カスタムリソース(CR)を作成することで、
+プロジェクト内のアクセスを制限することができます。</p>
+</div>
+<div class="paragraph">
+<p>例えば、以下のようにすると、この <code>NetworkPolicy</code> CR が適用された <strong>Project</strong> 内のすべての
+ポッドへのアクセスを制限することができます。
+これは、ファイアウォールの <code>DenyAll</code> デフォルトルールに相当します。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deny-by-default
+spec:
+  podSelector:
+  ingress: []</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>podSelector</code> が空であることに注意してください。
+これは、この <strong>Project</strong> 内のすべてのポッドに適用されることを意味し、
+この <code>NetworkPolicy</code> CR によって定義された、許可された <code>ingress</code> ルールが存在しないことを意味します。</p>
+</div>
+<div class="paragraph">
+<p><code>netproj-b</code> <strong>Project</strong> 内のポッドへのアクセスを制限するには、上記の NetworkPolicy CR を単に適用します。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create -n netproj-b -f {{ HOME_PATH }}/support/network-policy-block-all.yaml</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_接続のテスト_2_失敗するはずです"><a class="anchor" href="#_接続のテスト_2_失敗するはずです"></a>接続のテスト #2 (失敗するはずです)</h3>
+<div class="paragraph">
+<p>"block all by default" <code>NetworkPolicy</code> CR が適用されているので、
+<code>netproj-a</code> <strong>Project</strong> の Pod と <code>netproj-b</code> <strong>Project</strong> の Pod 間の接続はブロックされているはずです。</p>
+</div>
+<div class="paragraph">
+<p>実行しテストしてみます。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bash {{ HOME_PATH }}/support/test-connectivity.sh</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>以下のようなものが表示されます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">Getting Pod B's IP... 10.129.0.180
+Getting Pod A's Name... ose-1-66dz2
+Checking connectivity between Pod A and Pod B............ FAILED!</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>最後の行にある <code>FAILED!</code> という言葉に注目してください。
+これは、<code>netproj-a</code> <strong>Project</strong> の Pod が、<code>netproj-b</code> <strong>Project</strong> の
+Pod に接続できなかったことを意味します（予想通りです）。</p>
+</div>
+<div class="paragraph">
+<p>すべての <code>NetworkPolicy</code> オブジェクトを一覧表示するには、以下を実行します。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get networkpolicy -n netproj-b</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>以下のようなものが表示されます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">NAME              POD-SELECTOR   AGE
+deny-by-default   &lt;none&gt;         3m19s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_アクセスを許可する"><a class="anchor" href="#_アクセスを許可する"></a>アクセスを許可する</h3>
+<div class="paragraph">
+<p>NetworkPolicyでは、複数の`NetworkPolicy`CRを作成することで、
+プロジェクト内の個々のPodまたはグループへのアクセスを許可することができます。</p>
+</div>
+<div class="paragraph">
+<p>以下では、`run: ose`というラベルを持つプロジェクト内のすべてのポッドに対して、
+TCPのポート5000へのアクセスを許可しています。`netproj-b`プロジェクトのPodはこのラベルを持っています。</p>
+</div>
+<div class="paragraph">
+<p>ingress セクションでは、特に <code>name: netproj-a</code> というラベルを持つ
+すべてのプロジェクトからのこのアクセスを許可しています。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># allow access to TCP port 5000 for pods with the label "run: ose" specifically
+# from projects with the label "name: netproj-a".
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-tcp-5000-from-netproj-a-namespace
+spec:
+  podSelector:
+    matchLabels:
+      run: ose
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 5000
+    from:
+    - namespaceSelector:
+        matchLabels:
+          name: netproj-a</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>`podSelector`は、ローカルプロジェクトのPodが特定のラベルセレクタを使用して
+マッチングされる場所であることに留意してください。</p>
+</div>
+<div class="paragraph">
+<p>プロジェクト内のすべての <code>NetworkPolicy</code> CR は、プロジェクト内のPodに対して
+許可されるIngress アクセスを作成するために結合されます。この具体的なケースでは、
+"deny all" ポリシーと"allow TCP 5000" ポリシーが組み合わされています。</p>
+</div>
+<div class="paragraph">
+<p><code>netproj-a</code> <strong>Project</strong> 内のすべてのPodから <code>netproj-b</code> <strong>Project</strong> 内のPodへの
+アクセスを許可するには、上記の NetworkPolicy CR を適用してください。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create -n netproj-b -f {{ HOME_PATH }}/support/network-policy-allow-all-from-netproj-a.yaml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Listing the <strong>NetworkPolicies</strong>:</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get networkpolicy -n netproj-b</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>これは、新しいポリシーが導入されていることを示すものです</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">NAME                                      POD-SELECTOR   AGE
+allow-tcp-5000-from-netproj-a-namespace   run=ose        81s
+deny-by-default                           &lt;none&gt;         7m11s</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_接続のテスト_3_再び動作するはずです"><a class="anchor" href="#_接続のテスト_3_再び動作するはずです"></a>接続のテスト #3 (再び動作するはずです)</h3>
+<div class="paragraph">
+<p>" <code>netproj-a</code> からのアクセスをポート5000で許可する" NetworkPolicyが適用されているので、
+<code>netproj-a</code> <strong>Project</strong> 内のPodと`netproj-b` <strong>Project</strong> 内のPod間の接続が再び許可されているはずです。</p>
+</div>
+<div class="paragraph">
+<p>実行しテストします。</p>
+</div>
+<div class="listingblock execute">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bash {{ HOME_PATH }}/support/test-connectivity.sh</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>以下のようなものが表示されます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">Getting Pod B's IP... 10.129.0.180
+Getting Pod A's Name... ose-1-66dz2
+Checking connectivity between Pod A and Pod B... worked</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>最後の行にある <code>worked</code> という言葉に注目してください。
+これは、<code>netproj-a</code> <strong>Project*のPodが、<code>netproj-b</code> *Project</strong> のPodに（期待通り）接続できたことを意味します。</p>
+</div>
 </div>
 </div>
 </div>
