@@ -166,18 +166,15 @@ podを撃退したい場合はどうすればいいのでしょうか？</p>
 ノードが汚染されると、そのノードは汚染を許容しないワークロードを受け入れてはいけません。
 これらのワークロードに適用されるtoleration(許容)は、対応するpodが一致するtaintsを持つノードにスケジュールすることを許可します(ただし必須ではありません)。</p>
 </div>
-</div>
-</div>
-</div>
-<h1 id="_注" class="sect0"><a class="anchor" href="#_注"></a>[注）。</h1>
-<div class="paragraph">
-<p>ワークロードが常に特定のnodeに着地するようにするには、toleration(汚染)や許容とともに`nodeSelector`を使用する必要があります。</p>
-</div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p><mark>#</mark># ノードのラベルを調べる</p>
+<p>ワークロードが常に特定のnodeに着地するようにするには、toleration(汚染)や許容とともに`nodeSelector`を使用する必要があります。</p>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ノードのラベルを調べる"><a class="anchor" href="#_ノードのラベルを調べる"></a>ノードのラベルを調べる</h4>
 <div class="paragraph">
 <p>ノードを調べるには、`kubeadmin`として実行していることを確認します。</p>
 </div>
@@ -208,9 +205,9 @@ podを撃退したい場合はどうすればいいのでしょうか？</p>
 <div class="paragraph">
 <p>これらのワーカーノードには、何の汚染もないはずです。</p>
 </div>
-<div class="paragraph">
-<p><mark>#</mark># テストアプリケーションのデプロイ</p>
 </div>
+<div class="sect3">
+<h4 id="_テストアプリケーションのデプロイ"><a class="anchor" href="#_テストアプリケーションのデプロイ"></a>テストアプリケーションのデプロイ</h4>
 <div class="paragraph">
 <p>この演習では、テスト用のアプリをデプロイすることにします。</p>
 </div>
@@ -223,13 +220,13 @@ podを撃退したい場合はどうすればいいのでしょうか？</p>
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!cluster.ocs.openshift.io/openshift-storage' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}' | xargs -I{} oc label node {} appnode=welcome-php</code></pre>
 </div>
 </div>
-</div>
-</div>
+<div class="exampleblock">
+<div class="content">
 <div class="paragraph">
 <p>ノードにラベルを付けるには、ノード名と <code>key=value</code> のペアを渡します。例：<code>oc label node worker.example.com appnode=welcome-php</code></p>
 </div>
-<div class="exampleblock">
-<div class="content">
+</div>
+</div>
 <div class="paragraph">
 <p>ノードにラベルが貼られていることを確認し、ノードの名前をメモしておく。</p>
 </div>
@@ -284,14 +281,14 @@ oc scale deploy welcome-php --replicas=${NODE_NUMBER}
 oc rollout status deploy welcome-php</code></pre>
 </div>
 </div>
-</div>
-</div>
+<div class="exampleblock">
+<div class="content">
 <div class="paragraph">
 <p>podがノード間で均等に分散されていない場合は、<code>oc delete pods --all</code> を
 実行してリバランスさせる必要があるかもしれません。</p>
 </div>
-<div class="exampleblock">
-<div class="content">
+</div>
+</div>
 <div class="paragraph">
 <p>Podがワーカーに均等に散らばっていることを確認します。各ノードに1つのpodがあるはずです。</p>
 </div>
@@ -302,9 +299,9 @@ oc get pods -o=custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
 oc get nodes -l appnode=welcome-php</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p><mark>#</mark># ノードをtaint(汚染)する</p>
 </div>
+<div class="sect3">
+<h4 id="_ノードをtaint汚染する"><a class="anchor" href="#_ノードをtaint汚染する"></a>ノードをtaint(汚染)する</h4>
 <div class="paragraph">
 <p>ノードをtaintして、ワークロードを拒否するようにします。まず 各taintは何をするのか。
 設定できる基本的なtaintは3つです。</p>
@@ -359,13 +356,13 @@ oc get nodes -l appnode=welcome-php</code></pre>
 oc adm taint node ${TTNODE} welcome-php=run:NoSchedule</code></pre>
 </div>
 </div>
-</div>
-</div>
+<div class="exampleblock">
+<div class="content">
 <div class="paragraph">
 <p>構文は以下の通り : <code>oc adm taint node ${nodename} key=value:Effect</code></p>
 </div>
-<div class="exampleblock">
-<div class="content">
+</div>
+</div>
 <div class="paragraph">
 <p>デプロイしたノードを調べると、1つのノードにtaint(汚染)が適用されていることがわかります。</p>
 </div>
@@ -412,9 +409,9 @@ oc get pods -o=custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
 oc get nodes -l appnode=welcome-php</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p><mark>#</mark># トレレーション(許容)</p>
 </div>
+<div class="sect3">
+<h4 id="_トレレーション許容"><a class="anchor" href="#_トレレーション許容"></a>トレレーション(許容)</h4>
 <div class="paragraph">
 <p>toleration`とは、スケジューリング時にpodがノードのtaintを "許容"（または "無視"）するための方法である。
 トレレーションは <code>podSpec</code> で適用され、次のような形式をとります。</p>
@@ -495,9 +492,9 @@ oc get nodes -l appnode=welcome-php</code></pre>
 <a href="https://docs.openshift.com/container-platform/4.9/nodes/scheduling/nodes-scheduler-taints-tolerations.html">Official Documentation</a>
 をご覧ください。</p>
 </div>
-<div class="paragraph">
-<p><mark>#</mark># クリーンアップ</p>
 </div>
+<div class="sect3">
+<h4 id="_クリーンアップ"><a class="anchor" href="#_クリーンアップ"></a>クリーンアップ</h4>
 <div class="paragraph">
 <p>次のラボに備え、`kubeadmin`としてログインしていることを確認してください。</p>
 </div>
@@ -531,6 +528,8 @@ oc get nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!
 <div class="listingblock execute">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get nodes -l appnode=welcome-php</code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
