@@ -174,8 +174,8 @@
 ユーザーやグループに割り当てることができることも学びました。しかし、プロジェクトとKubernetes Namespaceの違いは何なのでしょうか？</p>
 </div>
 <div class="paragraph">
-<p>ProjectはKubernetes Namespaceに直接マッピングされます。また、内部レジストリのネームスペースや
-VXLANのVNIDにもマッピングされます。つまり、Projectへのアクセスを許可することは、ユーザーにコラボレーションを
+<p>プロジェクトはKubernetes Namespaceに直接マッピングされます。また、内部レジストリのネームスペースや
+VXLANのVNIDにもマッピングされます。つまり、プロジェクトへのアクセスを許可することは、ユーザーにコラボレーションを
 させる以上の効果があるのです。ネットワーク通信、レジストリネームスペースへのアクセス、
 Kubernetes Namespace内のオブジェクトへのアクセスを許可することになるのです。</p>
 </div>
@@ -282,8 +282,8 @@ subjects:
 </div>
 <div class="paragraph">
 <p>自動アップデートにより、クラスタロールはデフォルトの状態にリセットされます。
-これを無効にするには、<code>rbac.authorization.kubernetes.io/autoupdate`という
-アノテーションを実行して `false</code> に設定する必要があります。</p>
+これを無効にするには、<code>rbac.authorization.kubernetes.io/autoupdate</code> という
+アノテーションを実行して <code>false</code> に設定する必要があります。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -299,7 +299,7 @@ subjects:
 </div>
 </div>
 <div class="paragraph">
-<p>これでYAMLに`subjects`がないはずです。このような感じになるはずです。</p>
+<p>これでYAMLに <code>subjects</code> がないはずです。このような感じになるはずです。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -319,7 +319,7 @@ roleRef:
 </div>
 </div>
 <div class="paragraph">
-<p>`fancyuser1`としてログインし、プロジェクトを作成してテストしてください。</p>
+<p><code>fancyuser1</code> としてログインし、プロジェクトを作成してテストしてください。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -411,7 +411,7 @@ oc rollout status -n  openshift-apiserver deploy/apiserver</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>他のラボでは、`self-provisioners`ロールが必要な場合があるので、やったことを元に戻してみましょう。</p>
+<p>他のラボでは、`self-provisioners`ロールが必要な場合があるので、やったことを元に戻しておきましょう。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
