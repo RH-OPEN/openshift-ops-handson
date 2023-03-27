@@ -20,7 +20,7 @@
 
 もう一つの使用例は、アプリケーションの垂直方向でクォータを設定したい場合です。
 この場合、アプリケーションスタックのクォータを全体的に設定します。
-アプリケーションスタックは複数のOpenShiftプロジェクトにまたがることができるからです。
+アプリケーションスタックは複数の OpenShift プロジェクトにまたがることができるからです。
 
 このラボでは、両方のユースケースを探ります。
 
@@ -33,7 +33,8 @@
 oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
 ----
 
-では、`normaluser1`にクォータを設定します。このクォータを割り当てるプロジェクトを特定するために、`openshift.io/requester=`の`annotation`キーを使用する予定です。この演習では、10個以上のポッドを作成することを禁止するハードクォータを設定します。非推奨の警告はすべて無視してください。
+では、`normaluser1` にクォータを設定します。このクォータを割り当てるプロジェクトを特定するために、`openshift.io/requester=`の`annotation` キーを使用する予定です。
+この演習では、10個以上のポッドを作成することを禁止するハードクォータを設定します。非推奨の警告はすべて無視してください。
 
 [source,bash,role="execute"]
 ----
@@ -47,7 +48,7 @@ oc create clusterquota for-user-normaluser1 \
 構文は `openshift.io/requester=<username>` です。
 ====
 
-View the configuration.
+configuration を参照してみます。
 
 [source,bash,role="execute"]
 ----
@@ -80,7 +81,7 @@ spec:
 これは、（`openshift.io/requester: normaluser1` アノテーションに基づき）彼が作成したプロジェクトにのみ適用され、
 彼がアクセスできるプロジェクトには適用されません。これについては後で詳しく説明します。
 
-では、`normaluser1`としてログインします。
+では、`normaluser1` としてログインします。
 
 [source,bash,role="execute"]
 ----
@@ -116,7 +117,7 @@ oc new-app -n welcome1 --name=php1 quay.io/redhatworkshops/welcome-php:latest
 oc new-app -n welcome2 --name=php2 quay.io/redhatworkshops/welcome-php:latest
 ----
 
-デプロイ後、2つの実行中のポッドがあるはずです。各ネームスペースに1つずつです。
+デプロイ後、2つの実行中の pod があるはずです。各namespace に1つずつです。
 それを `oc get pods` コマンドで確認してください（出力が出るまでに何度か実行する必要があるかもしれません）。
 
 [source,bash,role="execute"]
@@ -200,7 +201,7 @@ status:
   phase: Active
 ----
 
-ここで、`normaluser1`として、アプリを10 Pod 以上にスケールさせてみてください。
+ここで、`normaluser1`として、アプリを10 pod 以上にスケールさせてみてください。
 
 
 [source,bash,role="execute"]
@@ -233,7 +234,7 @@ oc get events -n welcome2 | grep "quota" | head -1
 den: exceeded quota: for-user-normaluser1, requested: pods=1, used: pods=10, limited: pods=10
 ----
 
-状態を確認するには、`kubeadmin`アカウントに切り替えて、先ほどの`describe`コマンドを実行します。
+状態を確認するには、`kubeadmin` アカウントに切り替えて、先ほどの `describe` コマンドを実行します。
 
 [source,bash,role="execute"]
 ----
@@ -259,7 +260,7 @@ pods            10      10
 #### Setting quota by label
 
 複数のプロジェクトにまたがる可能性のあるアプリケーションスタックでクォータを設定するためには、
-プロジェクトを識別するためのラベルを使用する必要があります。まず、`kubeadmin`を確認します。
+プロジェクトを識別するためのラベルを使用する必要があります。まず、`kubeadmin` を確認します。
 
 [source,bash,role="execute"]
 ----
@@ -300,7 +301,7 @@ oc label ns pricelist-frontend appstack=pricelist
 oc label ns pricelist-backend appstack=pricelist
 ----
 
-for-pricelist` のクラスタリソースクォータに対して `oc describe` コマンドを実行します。
+`for-pricelist` のクラスタリソースクォータに対して `oc describe` コマンドを実行します。
 
 [source,bash,role="execute"]
 ----
@@ -339,7 +340,7 @@ oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
 oc describe clusterresourcequotas for-pricelist
 ----
 
-5つのポッド中、2つがこのクォータに対し使用されていることが確認できるはずです。
+5つの pod 中、2つがこのクォータに対し使用されていることが確認できるはずです。
 
 ----
 Name:           for-pricelist
@@ -359,7 +360,7 @@ pods            2       5
 `pricelist-frontend` と `pricelist-backend` は `kubeadmin` によってユーザーに割り当てられたので、ユーザー `normaluser1` はさらにポッドを作成することができます。これらは `normaluser1` が作成したものではないので、`openshift.io/requester=normaluser1` アノテーションを持ちません。環境に応じてクォータポリシーを組み合わせることができることがおわかりいただけたと思います。
 ====
 
-`normaluser1`でログインし直して、テストとしてアプリケーション Pod を合計 5 以上にスケールさせてみてください。
+`normaluser1`でログインし直して、テストとしてアプリケーション pod を合計 5 以上にスケールさせてみてください。
 
 [source,bash,role="execute"]
 ----
