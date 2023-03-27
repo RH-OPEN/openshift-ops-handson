@@ -1,11 +1,11 @@
 ## SDN ベースの OpenShift Network Policy
-OpenShiftのプラットフォーム内のデフォルトのSDN（Software Defined Networking）はOpen vSwitchをベースとしており、
-OpenShift SDNと呼ばれています。
+OpenShift のプラットフォーム内のデフォルトの SDN（Software Defined Networking）はOpen vSwitch をベースとしており、
+OpenShift SDN と呼ばれています。
 
-しかし、このクラスタはCNIに準拠したOVNKubernetesというSDNがインストールされています。
-このSDNはOpen Virtual Networkをベースにしています。今後、OpenShiftで使用するSDNとして推奨され、
+しかし、このクラスタは CNI 準拠した OVN Kubernetesという SDN がインストールされています。
+このSDNはOpen Virtual Network をベースにしています。今後、OpenShift で使用するSDNとして推奨され、
 将来のリリースではデフォルトとなる予定です。
-OVNKubernetesはOpenShiftSDNと後方互換性があります。OVNKubernetesの詳細については、以下をお読みください。
+OVN Kubernetes は OpenShift SDN と後方互換性があります。OVN Kubernetes の詳細については、以下をお読みください。
 link:https://docs.openshift.com/container-platform/4.9/networking/ovn_kubernetes_network_provider/about-ovn-kubernetes.html[the official documentation].
 
 SDN は OpenShift 環境内のアプリケーションコンポーネント間の接続を提供するために使用されます。
@@ -71,14 +71,14 @@ ose-1-deploy   0/1     Completed   0          38s
 ose-1-vj2gn    1/1     Running     0          30s
 ```
 
-netproj-a` *Project*のPod内でコマンドを実行し、`netproj-b` *Project*
-のPodのTCPポート5000に接続するようにします。
+netproj-a` *Project* の pod 内でコマンドを実行し、`netproj-b` *Project*
+の Pod の TCPポート 5000に接続するようにします。
 
 ### 接続テスト (成功するはずです)
-プロジェクトとPodが揃ったので、`netproj-a` *Project* にあるポッドと 
-`netproj-b` *Project* にあるPodの間の接続性をテストしてみましょう。
+プロジェクトと pod が揃ったので、`netproj-a` *Project* にある pod と 
+`netproj-b` *Project* にある Pod の間の接続性をテストしてみましょう。
 
-2つのPod間の接続性をテストするには、次のように実行します。
+2つの Pod 間の接続性をテストするには、次のように実行します。
 
 [source,bash,role="execute"]
 ----
@@ -95,14 +95,14 @@ Checking connectivity between Pod A and Pod B... worked
 ----
 
 最後の行に`worked`とあることに注意してください。
-これは、`netproj-a` *Project*のPodが`netproj-b` *Project*
-のPodに接続できたことを意味しています。
+これは、`netproj-a` *Project* の Pod が`netproj-b` *Project*
+の Pod に接続できたことを意味しています。
 
 これは、デフォルトでは、ネットワークポリシーによって、すべてのプロジェクトの
-すべてのPodが互いに接続できるようになっているためです。
+すべての Pod が互いに接続できるようになっているためです。
 
 ### アクセス制限
-NetworkPolicyでは、`NetworkPolicy`カスタムリソース(CR)を作成することで、
+NetworkPolicy では、`NetworkPolicy` カスタムリソース(CR)を作成することで、
 プロジェクト内のアクセスを制限することができます。
 
 例えば、以下のようにすると、この `NetworkPolicy` CR が適用された *Project* 内のすべての
@@ -171,11 +171,11 @@ deny-by-default   <none>         3m19s
 ----
 
 ### アクセスを許可する
-NetworkPolicyでは、複数の`NetworkPolicy`CRを作成することで、
+NetworkPolicy では、複数の `NetworkPolicy` CR を作成することで、
 プロジェクト内の個々のPodまたはグループへのアクセスを許可することができます。
 
-以下では、`run: ose`というラベルを持つプロジェクト内のすべてのポッドに対して、
-TCPのポート5000へのアクセスを許可しています。`netproj-b`プロジェクトのPodはこのラベルを持っています。
+以下では、`run: ose` というラベルを持つプロジェクト内のすべてのポッドに対して、
+TCPのポート 5000へのアクセスを許可しています。`netproj-b` プロジェクトのPodはこのラベルを持っています。
 
 ingress セクションでは、特に `name: netproj-a` というラベルを持つ
 すべてのプロジェクトからのこのアクセスを許可しています。
@@ -205,8 +205,8 @@ spec:
 `podSelector`は、ローカルプロジェクトのPodが特定のラベルセレクタを使用して
 マッチングされる場所であることに留意してください。
 
-プロジェクト内のすべての `NetworkPolicy` CR は、プロジェクト内のPodに対して
-許可されるIngress アクセスを作成するために結合されます。この具体的なケースでは、
+プロジェクト内のすべての `NetworkPolicy` CR は、プロジェクト内の Pod に対して
+許可される Ingress アクセスを作成するために結合されます。この具体的なケースでは、
 "deny all" ポリシーと"allow TCP 5000" ポリシーが組み合わされています。
 
 `netproj-a` *Project* 内のすべてのPodから `netproj-b` *Project* 内のPodへの
@@ -235,7 +235,7 @@ deny-by-default                           <none>         7m11s
 
 ### 接続のテスト #3 (再び動作するはずです)
 " `netproj-a` からのアクセスをポート5000で許可する" NetworkPolicyが適用されているので、
-`netproj-a` *Project* 内のPodと`netproj-b` *Project* 内のPod間の接続が再び許可されているはずです。
+`netproj-a` *Project* 内のPodと `netproj-b` *Project* 内のPod間の接続が再び許可されているはずです。
 
 実行しテストします。
 
@@ -254,4 +254,4 @@ Checking connectivity between Pod A and Pod B... worked
 ----
 
 最後の行にある `worked` という言葉に注目してください。
-これは、`netproj-a` *Project*のPodが、`netproj-b` *Project* のPodに（期待通り）接続できたことを意味します。
+これは、`netproj-a` *Project* の Pod が、`netproj-b` *Project* の Pod に（期待通り）接続できたことを意味します。
