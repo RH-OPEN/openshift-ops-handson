@@ -125,14 +125,14 @@
 <h2 id="_sdn_ベースの_openshift_network_policy"><a class="anchor" href="#_sdn_ベースの_openshift_network_policy"></a>SDN ベースの OpenShift Network Policy</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>OpenShiftのプラットフォーム内のデフォルトのSDN（Software Defined Networking）はOpen vSwitchをベースとしており、
-OpenShift SDNと呼ばれています。</p>
+<p>OpenShift のプラットフォーム内のデフォルトの SDN（Software Defined Networking）はOpen vSwitch をベースとしており、
+OpenShift SDN と呼ばれています。</p>
 </div>
 <div class="paragraph">
-<p>しかし、このクラスタはCNIに準拠したOVNKubernetesというSDNがインストールされています。
-このSDNはOpen Virtual Networkをベースにしています。今後、OpenShiftで使用するSDNとして推奨され、
+<p>しかし、このクラスタは CNI 準拠した OVN Kubernetesという SDN がインストールされています。
+このSDNはOpen Virtual Network をベースにしています。今後、OpenShift で使用するSDNとして推奨され、
 将来のリリースではデフォルトとなる予定です。
-OVNKubernetesはOpenShiftSDNと後方互換性があります。OVNKubernetesの詳細については、以下をお読みください。
+OVN Kubernetes は OpenShift SDN と後方互換性があります。OVN Kubernetes の詳細については、以下をお読みください。
 <a href="https://docs.openshift.com/container-platform/4.9/networking/ovn_kubernetes_network_provider/about-ovn-kubernetes.html">the official documentation</a>.</p>
 </div>
 <div class="paragraph">
@@ -216,18 +216,18 @@ ose-1-vj2gn    1/1     Running     0          30s</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>netproj-a` <strong>Project*のPod内でコマンドを実行し、<code>netproj-b</code> *Project</strong>
-のPodのTCPポート5000に接続するようにします。</p>
+<p>netproj-a` <strong>Project</strong> の pod 内でコマンドを実行し、<code>netproj-b</code> <strong>Project</strong>
+の Pod の TCPポート 5000に接続するようにします。</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_接続テスト_成功するはずです"><a class="anchor" href="#_接続テスト_成功するはずです"></a>接続テスト (成功するはずです)</h3>
 <div class="paragraph">
-<p>プロジェクトとPodが揃ったので、<code>netproj-a</code> <strong>Project</strong> にあるポッドと
-<code>netproj-b</code> <strong>Project</strong> にあるPodの間の接続性をテストしてみましょう。</p>
+<p>プロジェクトと pod が揃ったので、<code>netproj-a</code> <strong>Project</strong> にある pod と
+<code>netproj-b</code> <strong>Project</strong> にある Pod の間の接続性をテストしてみましょう。</p>
 </div>
 <div class="paragraph">
-<p>2つのPod間の接続性をテストするには、次のように実行します。</p>
+<p>2つの Pod 間の接続性をテストするには、次のように実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -246,18 +246,18 @@ Checking connectivity between Pod A and Pod B... worked</code></pre>
 </div>
 <div class="paragraph">
 <p>最後の行に`worked`とあることに注意してください。
-これは、<code>netproj-a</code> <strong>Project*のPodが`netproj-b` *Project</strong>
-のPodに接続できたことを意味しています。</p>
+これは、<code>netproj-a</code> <strong>Project</strong> の Pod が`netproj-b` <strong>Project</strong>
+の Pod に接続できたことを意味しています。</p>
 </div>
 <div class="paragraph">
 <p>これは、デフォルトでは、ネットワークポリシーによって、すべてのプロジェクトの
-すべてのPodが互いに接続できるようになっているためです。</p>
+すべての Pod が互いに接続できるようになっているためです。</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_アクセス制限"><a class="anchor" href="#_アクセス制限"></a>アクセス制限</h3>
 <div class="paragraph">
-<p>NetworkPolicyでは、`NetworkPolicy`カスタムリソース(CR)を作成することで、
+<p>NetworkPolicy では、<code>NetworkPolicy</code> カスタムリソース(CR)を作成することで、
 プロジェクト内のアクセスを制限することができます。</p>
 </div>
 <div class="paragraph">
@@ -340,12 +340,12 @@ deny-by-default   &lt;none&gt;         3m19s</code></pre>
 <div class="sect2">
 <h3 id="_アクセスを許可する"><a class="anchor" href="#_アクセスを許可する"></a>アクセスを許可する</h3>
 <div class="paragraph">
-<p>NetworkPolicyでは、複数の`NetworkPolicy`CRを作成することで、
+<p>NetworkPolicy では、複数の <code>NetworkPolicy</code> CR を作成することで、
 プロジェクト内の個々のPodまたはグループへのアクセスを許可することができます。</p>
 </div>
 <div class="paragraph">
-<p>以下では、`run: ose`というラベルを持つプロジェクト内のすべてのポッドに対して、
-TCPのポート5000へのアクセスを許可しています。`netproj-b`プロジェクトのPodはこのラベルを持っています。</p>
+<p>以下では、<code>run: ose</code> というラベルを持つプロジェクト内のすべてのポッドに対して、
+TCPのポート 5000へのアクセスを許可しています。<code>netproj-b</code> プロジェクトのPodはこのラベルを持っています。</p>
 </div>
 <div class="paragraph">
 <p>ingress セクションでは、特に <code>name: netproj-a</code> というラベルを持つ
@@ -378,8 +378,8 @@ spec:
 マッチングされる場所であることに留意してください。</p>
 </div>
 <div class="paragraph">
-<p>プロジェクト内のすべての <code>NetworkPolicy</code> CR は、プロジェクト内のPodに対して
-許可されるIngress アクセスを作成するために結合されます。この具体的なケースでは、
+<p>プロジェクト内のすべての <code>NetworkPolicy</code> CR は、プロジェクト内の Pod に対して
+許可される Ingress アクセスを作成するために結合されます。この具体的なケースでは、
 "deny all" ポリシーと"allow TCP 5000" ポリシーが組み合わされています。</p>
 </div>
 <div class="paragraph">
@@ -414,7 +414,7 @@ deny-by-default                           &lt;none&gt;         7m11s</code></pre
 <h3 id="_接続のテスト_3_再び動作するはずです"><a class="anchor" href="#_接続のテスト_3_再び動作するはずです"></a>接続のテスト #3 (再び動作するはずです)</h3>
 <div class="paragraph">
 <p>" <code>netproj-a</code> からのアクセスをポート5000で許可する" NetworkPolicyが適用されているので、
-<code>netproj-a</code> <strong>Project</strong> 内のPodと`netproj-b` <strong>Project</strong> 内のPod間の接続が再び許可されているはずです。</p>
+<code>netproj-a</code> <strong>Project</strong> 内のPodと <code>netproj-b</code> <strong>Project</strong> 内のPod間の接続が再び許可されているはずです。</p>
 </div>
 <div class="paragraph">
 <p>実行しテストします。</p>
@@ -436,7 +436,7 @@ Checking connectivity between Pod A and Pod B... worked</code></pre>
 </div>
 <div class="paragraph">
 <p>最後の行にある <code>worked</code> という言葉に注目してください。
-これは、<code>netproj-a</code> <strong>Project*のPodが、<code>netproj-b</code> *Project</strong> のPodに（期待通り）接続できたことを意味します。</p>
+これは、<code>netproj-a</code> <strong>Project</strong> の Pod が、<code>netproj-b</code> <strong>Project</strong> の Pod に（期待通り）接続できたことを意味します。</p>
 </div>
 </div>
 </div>
