@@ -1,0 +1,305 @@
+## Taints and Toleration(汚染と許容)
+
+以前のラボでは、https://docs.openshift.com/container-platform/latest/nodes/scheduling/nodes-scheduler-node-selectors.html[nodeSelector]を活用して
+"インフラ" ノードを作成し、ワークロードの配置を制御しました。
+特定のタスクを実行するようにノードを設定する方法について説明しました。nodePlacement`の`nodeSelector`は、
+podをノードの集合に引き寄せます。しかし、逆のことをしたい場合はどうすればいいのでしょうか。
+podを撃退したい場合はどうすればいいのでしょうか？
+
+taint(汚染)を設定することで、汚染されたノードでpodが実行されないようにすることができます。
+
+以下のような使用例があります：
+
+* クラスタ内のノード（またはノード群）を特別な目的のために予約する。
+* 特定のタスクに特化したハードウェアを持つノード（GPUなど）。
+* ノードによっては、その上で動作するソフトウェアに対してライセンスが設定されている場合があります。
+* コンプライアンス上、ノードは異なるネットワークゾーンに存在することができます。
+* 誤動作するノードのトラブルシューティングを行うことができます。
+
+このラボでは、taint(汚染)とtoleration(許容)を使用してワークロードの着地点を制御する方法を探ります。
+
+### 背景
+
+toleration(汚染)とtoleration(許容)は、特定のノードにワークロードがスケジューリングされないようにするために連携して動作します。
+ノードが汚染されると、そのノードは汚染を許容しないワークロードを受け入れてはいけません。
+これらのワークロードに適用されるtoleration(許容)は、対応するpodが一致するtaintsを持つノードにスケジュールすることを許可します(ただし必須ではありません)。
+
+[注）。
+====
+ワークロードが常に特定のnodeに着地するようにするには、toleration(汚染)や許容とともに`nodeSelector`を使用する必要があります。
+====
+
+#### ノードのラベルを調べる
+
+ノードを調べるには、`kubeadmin`として実行していることを確認します。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+----
+
+インフラノードとストレージノードを無視して、現在のワーカーノードをリストアップします。
+
+[source,bash,role="execute"]
+----
+oc get nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!cluster.ocs.openshift.io/openshift-storage'
+----
+
+どのラボで行ったかにもよりますが、3つ以上のノードに ワーカーラベルセットです。
+
+では、これらのワーカーノードにtaint(汚染)が加えられているかどうか見てみましょう。
+
+[source,bash,role="execute"]
+----
+oc describe nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!cluster.ocs.openshift.io/openshift-storage' | grep Taint
+----
+
+これらのワーカーノードには、何の汚染もないはずです。
+
+#### テストアプリケーションのデプロイ
+
+この演習では、テスト用のアプリをデプロイすることにします。
+
+このアプリをデプロイする前に、ノードにラベルを貼っておく必要があります。
+この演習では アプリケーションは `appnode=welcome-php` というラベルのついたノードにデプロイされます。
+
+[source,bash,role="execute"]
+----
+oc get nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!cluster.ocs.openshift.io/openshift-storage' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}' | xargs -I{} oc label node {} appnode=welcome-php
+----
+
+[Note]
+====
+ノードにラベルを付けるには、ノード名と `key=value` のペアを渡します。例：`oc label node worker.example.com appnode=welcome-php`
+====
+
+ノードにラベルが貼られていることを確認し、ノードの名前をメモしておく。
+
+[source,bash,role="execute"]
+----
+oc get nodes -l appnode=welcome-php
+----
+
+これで、ホームディレクトリに用意されたYAMLマニフェストを使用して、アプリケーションをデプロイすることができます。
+
+[source,bash,role="execute"]
+----
+oc create -f ~/support/welcome-php.yaml
+----
+
+これにより、以下のオブジェクトが作成されます。
+
+* namespace `tt-lab` は、以下のとおりです
+* サンプルのphpアプリを実行する `welcome-php` というデプロイメントです
+* ポート `8080` をリッスンする `welcome-php` というサービス
+* welcome-php`というルート
+
+これから `tt-lab` プロジェクトで作業するので、今すぐ切り替えてください。
+
+[source,bash,role="execute"]
+----
+oc project tt-lab
+----
+
+ここで、podをノードの数と同じになるようにスケールします。デフォルトのスケジューラは、
+アプリを均等に分散させようとします。また、ロールアウトが完了するのを待ちます。
+
+[source,bash,role="execute"]
+----
+NODE_NUMBER=$(oc get nodes --no-headers -l appnode=welcome-php | wc -l) 
+oc scale deploy welcome-php --replicas=${NODE_NUMBER}
+oc rollout status deploy welcome-php
+----
+
+[Note]
+====
+podがノード間で均等に分散されていない場合は、`oc delete pods --all` を
+実行してリバランスさせる必要があるかもしれません。
+====
+
+Podがワーカーに均等に散らばっていることを確認します。各ノードに1つのpodがあるはずです。
+
+[source,bash,role="execute"]
+----
+clear
+oc get pods -o=custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+oc get nodes -l appnode=welcome-php
+----
+
+#### ノードをtaint(汚染)する
+
+ノードをtaintして、ワークロードを拒否するようにします。まず 各taintは何をするのか。
+設定できる基本的なtaintは3つです。
+
+* `key=value:NoSchedule`
+* `key=value:NoExecute`
+* `key=value:PreferNoSchedule`
+
+この場合の `key` は、253文字までの任意の文字列です。キーは文字または数字で始まり、
+文字、数字、ハイフン、ドット、アンダースコアを含むことができます。
+
+ここでの `value` は、63文字までの任意の文字列です。値は文字または数字で始まり、
+文字、数字、ハイフン、ドット、アンダースコアを含むことができます。
+
+3つの "効果 "は、次のようなものです：
+
+* `NoSchedule` - taint(汚染)に一致しない新しいpodはそのノードにスケジュールされない。ノード上の既存のpodは残ります。
+* `NoExecute` - taintに一致しない新しいpodは、そのノードにスケジュールされません。toleration(許容)が一致しないノード上の既存のpodは削除されます。
+* `PreferNoSchedule` - taintにマッチしない新しいpodはそのノードにスケジュールされるかもしれませんが、スケジューラはスケジュールされないようにします。そのノードの既存のPodは残ります。
+
+もう一つ、`operator`と呼ばれるコンポーネントがあります。この`operator`については、"toleration" のセクションで詳しく説明します。
+
+このラボでは、インフラやストレージノードではない最初のノードに `welcome-php=run:NoSchedule` を仕込みます。 
+これにより、すべての新しいPodは（適切なtolerationがない場合）このノードにスケジュールされないようになります。
+
+[source,bash,role="execute"]
+----
+TTNODE=$(oc get nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!cluster.ocs.openshift.io/openshift-storage' -o jsonpath='{range .items[0]}{.metadata.name}')
+oc adm taint node ${TTNODE} welcome-php=run:NoSchedule
+----
+
+[Note]
+====
+構文は以下の通り : `oc adm taint node ${nodename} key=value:Effect`
+====
+
+デプロイしたノードを調べると、1つのノードにtaint(汚染)が適用されていることがわかります。
+
+[source,bash,role="execute"]
+----
+oc describe nodes -l appnode=welcome-php | grep Taint
+----
+
+NoSchedule`を使用しているので、podはまだそこにあるはずです。
+NoSchedule`は、そのノードで新しいpodが生まれるのを止めるだけであることを忘れないでください
+（コマンドは`1`を返すはずです）。
+
+[source,bash,role="execute"]
+----
+oc get pods -o wide | grep -c ${TTNODE}
+----
+
+Podを削除して、`replicaSet`が再デプロイしてくれるのを待ちましょう。
+
+[source,bash,role="execute"]
+----
+oc delete pods --all
+oc rollout status deploy welcome-php
+----
+
+今回のデプロイはtoleration(許容)がないので、スケジューラは taint(汚染)を持つノード以外の
+すべてのノードでpodを使用します。このコマンドは`0`を返すはずです。
+
+[source,bash,role="execute"]
+----
+oc get pods -o wide | grep -c ${TTNODE}
+----
+
+podが起動している場所を調べます。
+
+[source,bash,role="execute"]
+----
+clear
+oc get pods -o=custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+oc get nodes -l appnode=welcome-php
+----
+
+#### トレレーション(許容)
+
+toleration`とは、スケジューリング時にpodがノードのtaintを "許容"（または "無視"）するための方法である。
+トレレーションは `podSpec` で適用され、次のような形式をとります。
+
+[source,yaml]
+----
+tolerations:
+- key: "welcome-php"
+  operator: "Equal"
+  value: "run"
+  effect: "NoSchedule"
+----
+
+toleration(許容)が「一致」すれば、スケジューラはこのノードにワークロードをスケジュールします
+（必要であれば...保証ではないことを忘れないでください）。
+`key`、`value`、`effect`を一致させなければならないことに注意してください。また、`operator`と呼ばれるものがある。
+
+operator`には、求める機能に応じて `Equal` または `Exists` を設定することができる。
+
+* `Equal` - `key`, `value`, `effect` の各パラメータが一致する必要があります。これは、何も指定しない場合のデフォルト設定です。
+* Exists` - `key` と `effect` パラメータが一致する必要があります。value パラメータは空白にしなければならず、どのパラメータにもマッチします。
+
+
+デプロイの `spec.template.spec` セクションでこのtolerationを適用することになります。
+
+[source,bash,role="execute"]
+----
+oc patch deployment welcome-php --patch '{"spec":{"template":{"spec":{"tolerations":[{"key":"welcome-php","operator":"Equal","value":"run","effect":"NoSchedule"}]}}}}'
+----
+
+パッチを当てるとまたデプロイが始まるので、ロールアウトが終わるのを待ちます。
+
+[source,bash,role="execute"]
+----
+oc rollout status deploy welcome-php
+----
+
+デプロイメント YAML の `.spec.template.spec.tolerations` で
+toleration の設定を見ることができます。
+
+[source,bash,role="execute"]
+----
+oc get deploy welcome-php -o yaml
+----
+
+さて、toleration(許容)ができたので、taint(汚染)のあるノードで実行することにします
+(これは`1`を返すはず)
+
+[source,bash,role="execute"]
+----
+oc get pods -o wide | grep -c ${TTNODE}
+----
+
+これで、すべてのpodを並べると、均等に広がっているはずです。
+
+[source,bash,role="execute"]
+----
+clear
+oc get pods -o=custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+oc get nodes -l appnode=welcome-php
+----
+
+toleration(汚染)と許容について詳しくは、
+https://docs.openshift.com/container-platform/4.9/nodes/scheduling/nodes-scheduler-taints-tolerations.html[Official Documentation]
+をご覧ください。
+
+#### クリーンアップ
+
+次のラボに備え、`kubeadmin`としてログインしていることを確認してください。
+
+[source,bash,role="execute"]
+----
+oc login -u kubeadmin -p {{ KUBEADMIN_PASSWORD }}
+----
+
+他のラボもtaint(汚染)の影響を受けている可能性があるので、元に戻しましょう：
+
+[source,bash,role="execute"]
+----
+oc delete project tt-lab
+oc adm taint node ${TTNODE} welcome-php-
+oc get nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!cluster.ocs.openshift.io/openshift-storage' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}' | xargs -I{} oc label node {} appnode-
+----
+
+ノードがそのtaint(汚染)を除去していることを確認します。
+
+[source,bash,role="execute"]
+----
+oc describe nodes -l 'node-role.kubernetes.io/worker,!node-role.kubernetes.io/infra,!cluster.ocs.openshift.io/openshift-storage' | grep Taint
+----
+
+また、作業していたノードにラベルが存在しないことを確認します。
+このコマンドは、どのノードも返さないはずです。
+
+[source,bash,role="execute"]
+----
+oc get nodes -l appnode=welcome-php
+----
