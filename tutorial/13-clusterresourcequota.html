@@ -150,7 +150,7 @@
 <div class="paragraph">
 <p>もう一つの使用例は、アプリケーションの垂直方向でクォータを設定したい場合です。
 この場合、アプリケーションスタックのクォータを全体的に設定します。
-アプリケーションスタックは複数のOpenShiftプロジェクトにまたがることができるからです。</p>
+アプリケーションスタックは複数の OpenShift プロジェクトにまたがることができるからです。</p>
 </div>
 <div class="paragraph">
 <p>このラボでは、両方のユースケースを探ります。</p>
@@ -166,7 +166,8 @@
 </div>
 </div>
 <div class="paragraph">
-<p>では、`normaluser1`にクォータを設定します。このクォータを割り当てるプロジェクトを特定するために、`openshift.io/requester=`の`annotation`キーを使用する予定です。この演習では、10個以上のポッドを作成することを禁止するハードクォータを設定します。非推奨の警告はすべて無視してください。</p>
+<p>では、<code>normaluser1</code> にクォータを設定します。このクォータを割り当てるプロジェクトを特定するために、<code>openshift.io/requester=`の`annotation</code> キーを使用する予定です。
+この演習では、10個以上のポッドを作成することを禁止するハードクォータを設定します。非推奨の警告はすべて無視してください。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -183,7 +184,7 @@
 </div>
 </div>
 <div class="paragraph">
-<p>View the configuration.</p>
+<p>configuration を参照してみます。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -219,7 +220,7 @@ spec:
 彼がアクセスできるプロジェクトには適用されません。これについては後で詳しく説明します。</p>
 </div>
 <div class="paragraph">
-<p>では、`normaluser1`としてログインします。</p>
+<p>では、<code>normaluser1</code> としてログインします。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -261,7 +262,7 @@ oc new-app -n welcome2 --name=php2 quay.io/redhatworkshops/welcome-php:latest</c
 </div>
 </div>
 <div class="paragraph">
-<p>デプロイ後、2つの実行中のポッドがあるはずです。各ネームスペースに1つずつです。
+<p>デプロイ後、2つの実行中の pod があるはずです。各namespace に1つずつです。
 それを <code>oc get pods</code> コマンドで確認してください（出力が出るまでに何度か実行する必要があるかもしれません）。</p>
 </div>
 <div class="listingblock execute">
@@ -354,7 +355,7 @@ status:
 </div>
 </div>
 <div class="paragraph">
-<p>ここで、`normaluser1`として、アプリを10 Pod 以上にスケールさせてみてください。</p>
+<p>ここで、`normaluser1`として、アプリを10 pod 以上にスケールさせてみてください。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -391,7 +392,7 @@ den: exceeded quota: for-user-normaluser1, requested: pods=1, used: pods=10, lim
 </div>
 </div>
 <div class="paragraph">
-<p>状態を確認するには、`kubeadmin`アカウントに切り替えて、先ほどの`describe`コマンドを実行します。</p>
+<p>状態を確認するには、<code>kubeadmin</code> アカウントに切り替えて、先ほどの <code>describe</code> コマンドを実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -421,7 +422,7 @@ pods            10      10</pre>
 <h4 id="_setting_quota_by_label"><a class="anchor" href="#_setting_quota_by_label"></a>Setting quota by label</h4>
 <div class="paragraph">
 <p>複数のプロジェクトにまたがる可能性のあるアプリケーションスタックでクォータを設定するためには、
-プロジェクトを識別するためのラベルを使用する必要があります。まず、`kubeadmin`を確認します。</p>
+プロジェクトを識別するためのラベルを使用する必要があります。まず、<code>kubeadmin</code> を確認します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -467,7 +468,7 @@ oc label ns pricelist-backend appstack=pricelist</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>for-pricelist` のクラスタリソースクォータに対して <code>oc describe</code> コマンドを実行します。</p>
+<p><code>for-pricelist</code> のクラスタリソースクォータに対して <code>oc describe</code> コマンドを実行します。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
@@ -511,7 +512,7 @@ oc describe clusterresourcequotas for-pricelist</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>5つのポッド中、2つがこのクォータに対し使用されていることが確認できるはずです。</p>
+<p>5つの pod 中、2つがこのクォータに対し使用されていることが確認できるはずです。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -535,7 +536,7 @@ pods            2       5</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>`normaluser1`でログインし直して、テストとしてアプリケーション Pod を合計 5 以上にスケールさせてみてください。</p>
+<p>`normaluser1`でログインし直して、テストとしてアプリケーション pod を合計 5 以上にスケールさせてみてください。</p>
 </div>
 <div class="listingblock execute">
 <div class="content">
